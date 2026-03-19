@@ -1,0 +1,9 @@
+{
+  "port": 7788,
+  "autoStart": true,
+  "enableDebugLog": false,
+  "allowedOrigins": [
+    "*"
+  ],
+  "maxConnections": 10
+}

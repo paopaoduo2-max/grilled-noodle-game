@@ -1,0 +1,134 @@
+{
+  "ver": "1.0.27",
+  "importer": "image",
+  "imported": true,
+  "uuid": "7f0683f9-3a6b-4012-8a17-1ae33c0967ad",
+  "files": [
+    ".json",
+    ".png"
+  ],
+  "subMetas": {
+    "6c48a": {
+      "importer": "texture",
+      "uuid": "7f0683f9-3a6b-4012-8a17-1ae33c0967ad@6c48a",
+      "displayName": "Young Woman_happy",
+      "id": "6c48a",
+      "name": "texture",
+      "userData": {
+        "wrapModeS": "clamp-to-edge",
+        "wrapModeT": "clamp-to-edge",
+        "imageUuidOrDatabaseUri": "7f0683f9-3a6b-4012-8a17-1ae33c0967ad",
+        "isUuid": true,
+        "visible": false,
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "anisotropy": 0
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "f9941": {
+      "importer": "sprite-frame",
+      "uuid": "7f0683f9-3a6b-4012-8a17-1ae33c0967ad@f9941",
+      "displayName": "Young Woman_happy",
+      "id": "f9941",
+      "name": "spriteFrame",
+      "userData": {
+        "trimThreshold": 1,
+        "rotated": false,
+        "offsetX": 13.5,
+        "offsetY": -8,
+        "trimX": 93,
+        "trimY": 39,
+        "width": 264,
+        "height": 696,
+        "rawWidth": 423,
+        "rawHeight": 758,
+        "borderTop": 0,
+        "borderBottom": 0,
+        "borderLeft": 0,
+        "borderRight": 0,
+        "packable": true,
+        "pixelsToUnit": 100,
+        "pivotX": 0.5,
+        "pivotY": 0.5,
+        "meshType": 0,
+        "vertices": {
+          "rawPosition": [
+            -132,
+            -348,
+            0,
+            132,
+            -348,
+            0,
+            -132,
+            348,
+            0,
+            132,
+            348,
+            0
+          ],
+          "indexes": [
+            0,
+            1,
+            2,
+            2,
+            1,
+            3
+          ],
+          "uv": [
+            93,
+            719,
+            357,
+            719,
+            93,
+            23,
+            357,
+            23
+          ],
+          "nuv": [
+            0.2198581560283688,
+            0.030343007915567283,
+            0.8439716312056738,
+            0.030343007915567283,
+            0.2198581560283688,
+            0.9485488126649076,
+            0.8439716312056738,
+            0.9485488126649076
+          ],
+          "minPos": [
+            -132,
+            -348,
+            0
+          ],
+          "maxPos": [
+            132,
+            348,
+            0
+          ]
+        },
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "7f0683f9-3a6b-4012-8a17-1ae33c0967ad@6c48a",
+        "atlasUuid": "",
+        "trimType": "auto"
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "type": "sprite-frame",
+    "hasAlpha": true,
+    "fixAlphaTransparencyArtifacts": false,
+    "redirect": "7f0683f9-3a6b-4012-8a17-1ae33c0967ad@6c48a"
+  }
+}

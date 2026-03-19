@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>主菜单按钮重设计 V29</title>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Zhi+Mang+Xing&family=Ma+Shan+Zheng&display=swap");
+
+        :root {
+            --ink: #5b3427;
+            --wood-1: #7b4b38;
+            --wood-2: #5f382b;
+            --wood-3: #402218;
+            --paper-1: #efd7a8;
+            --paper-2: #dfbb7b;
+            --paper-3: #c08f55;
+            --gold: #f5d6a2;
+            --warm: #e7985d;
+            --cool: #8eb0c9;
+            --danger: #b35d55;
+            --bg: #f5ebdd;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top, rgba(255, 208, 150, 0.18), transparent 24%),
+                linear-gradient(180deg, #2a1814 0%, #1c110e 100%);
+        }
+
+        .board {
+            width: 1600px;
+            margin: 0 auto;
+            padding: 32px 32px 56px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 22px;
+            color: #fff2df;
+        }
+
+        .topbar h1 {
+            margin: 0;
+            font-size: 34px;
+            letter-spacing: 0.08em;
+        }
+
+        .topbar p {
+            margin: 0;
+            font-size: 13px;
+            opacity: 0.8;
+            letter-spacing: 0.08em;
+        }
+
+        .panel {
+            border-radius: 28px;
+            padding: 24px;
+            background: var(--bg);
+            box-shadow: 0 28px 60px rgba(17, 7, 4, 0.24), inset 0 1px 0 rgba(255,255,255,0.4);
+        }
+
+        .panel h2 {
+            margin: 0 0 10px;
+            font-size: 20px;
+            letter-spacing: 0.08em;
+        }
+
+        .panel p {
+            margin: 0 0 18px;
+            font-size: 13px;
+            line-height: 1.7;
+            color: rgba(91, 52, 39, 0.72);
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 22px;
+        }
+
+        .stage {
+            border-radius: 24px;
+            padding: 34px 28px 38px;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08)),
+                linear-gradient(135deg, #d8e6f5 0%, #d1ccc3 34%, #ead5b1 56%, #e69a67 100%);
+            border: 1px solid rgba(91, 52, 39, 0.08);
+        }
+
+        .stack {
+            width: 420px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .menu-btn {
+            position: relative;
+            height: 92px;
+            border-radius: 30px;
+            background: linear-gradient(180deg, var(--wood-1) 0%, var(--wood-2) 56%, var(--wood-3) 100%);
+            border: 4px solid rgba(244, 220, 187, 0.92);
+            box-shadow:
+                inset 0 2px 0 rgba(255, 240, 217, 0.24),
+                inset 0 -10px 18px rgba(42, 18, 12, 0.28),
+                0 18px 24px rgba(53, 19, 10, 0.18);
+            overflow: hidden;
+        }
+
+        .menu-btn::before {
+            content: "";
+            position: absolute;
+            inset: 10px;
+            border-radius: 22px;
+            background: linear-gradient(180deg, var(--paper-1) 0%, var(--paper-2) 56%, var(--paper-3) 100%);
+            box-shadow:
+                inset 0 2px 0 rgba(255, 246, 230, 0.32),
+                inset 0 -12px 16px rgba(124, 84, 56, 0.18);
+        }
+
+        .menu-btn::after {
+            content: "";
+            position: absolute;
+            left: 18px;
+            right: 18px;
+            top: 14px;
+            height: 20px;
+            border-radius: 14px;
+            background: rgba(255, 247, 228, 0.28);
+        }
+
+        .btn-glow {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(255, 236, 196, 0.34), transparent 56%);
+            mix-blend-mode: screen;
+        }
+
+        .btn-dot {
+            position: absolute;
+            left: 28px;
+            top: 50%;
+            width: 18px;
+            height: 18px;
+            transform: translateY(-50%);
+            border-radius: 999px;
+            background: linear-gradient(180deg, #ffe9c8, var(--warm));
+            box-shadow: 0 0 0 3px rgba(255, 243, 224, 0.3), 0 4px 8px rgba(94, 42, 26, 0.16);
+            z-index: 2;
+        }
+
+        .btn-mark {
+            position: absolute;
+            right: 30px;
+            top: 50%;
+            width: 28px;
+            height: 28px;
+            transform: translateY(-50%) rotate(45deg);
+            border-radius: 8px;
+            background: rgba(112, 68, 48, 0.22);
+            z-index: 2;
+        }
+
+        .btn-label {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            color: #6c402f;
+            z-index: 3;
+        }
+
+        .menu-btn.continue::before {
+            background: linear-gradient(180deg, #e9dbbc 0%, #d4c09c 52%, #b39b7d 100%);
+        }
+
+        .menu-btn.continue .btn-dot {
+            background: linear-gradient(180deg, #f1f8ff, var(--cool));
+        }
+
+        .menu-btn.quit::before {
+            background: linear-gradient(180deg, #ead1c2 0%, #cfab96 54%, #b57e69 100%);
+        }
+
+        .menu-btn.quit .btn-dot {
+            background: linear-gradient(180deg, #f8e3dc, var(--danger));
+        }
+
+        .settings-sign {
+            position: relative;
+            width: 210px;
+            height: 104px;
+            border-radius: 28px;
+            margin: 30px auto 0;
+            background: linear-gradient(180deg, var(--wood-1) 0%, var(--wood-2) 56%, var(--wood-3) 100%);
+            border: 4px solid rgba(244, 220, 187, 0.92);
+            box-shadow:
+                inset 0 2px 0 rgba(255, 240, 217, 0.24),
+                inset 0 -10px 18px rgba(42, 18, 12, 0.28),
+                0 18px 24px rgba(53, 19, 10, 0.18);
+            overflow: hidden;
+        }
+
+        .settings-sign::before {
+            content: "";
+            position: absolute;
+            inset: 10px;
+            border-radius: 22px;
+            background: linear-gradient(180deg, #ecd8b2 0%, #d9bc82 54%, #c09255 100%);
+            box-shadow: inset 0 2px 0 rgba(255, 246, 230, 0.32), inset 0 -12px 16px rgba(124, 84, 56, 0.18);
+        }
+
+        .settings-sign::after {
+            content: "";
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            top: 14px;
+            height: 20px;
+            border-radius: 14px;
+            background: rgba(255, 247, 228, 0.28);
+        }
+
+        .settings-inner {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            z-index: 2;
+            color: #fff4e3;
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-shadow: 0 2px 0 rgba(93, 52, 37, 0.22);
+        }
+
+        .gear {
+            width: 26px;
+            height: 26px;
+            fill: #fff4e3;
+        }
+
+        .notes {
+            display: grid;
+            gap: 14px;
+        }
+
+        .note {
+            border-radius: 18px;
+            padding: 14px 16px;
+            background: rgba(255,255,255,0.46);
+            border: 1px solid rgba(91,52,39,0.08);
+            font-size: 13px;
+            line-height: 1.7;
+            color: rgba(91,52,39,0.84);
+        }
+
+        .note strong {
+            display: block;
+            margin-bottom: 4px;
+            letter-spacing: 0.04em;
+        }
+    </style>
+</head>
+<body>
+    <div class="board">
+        <div class="topbar">
+            <h1>按钮重设计 V29</h1>
+            <p>主按钮与设置按钮统一成“木框 + 招牌底 + 中央亮带”的同一套语言</p>
+        </div>
+
+        <div class="layout">
+            <section class="panel">
+                <h2>视觉方向</h2>
+                <p>按钮不再只是浅色圆角条，而是更像店招部件。主按钮做成厚木框包裹的暖金招牌，保留中间亮带给文字；设置按钮缩成同语言的小牌。</p>
+                <div class="stage">
+                    <div class="stack">
+                        <div class="menu-btn start">
+                            <div class="btn-glow"></div>
+                            <div class="btn-dot"></div>
+                            <div class="btn-mark"></div>
+                            <div class="btn-label">开始游戏</div>
+                        </div>
+                        <div class="menu-btn continue">
+                            <div class="btn-glow"></div>
+                            <div class="btn-dot"></div>
+                            <div class="btn-mark"></div>
+                            <div class="btn-label">继续游戏</div>
+                        </div>
+                        <div class="menu-btn quit">
+                            <div class="btn-glow"></div>
+                            <div class="btn-dot"></div>
+                            <div class="btn-mark"></div>
+                            <div class="btn-label">退出游戏</div>
+                        </div>
+                    </div>
+
+                    <div class="settings-sign">
+                        <div class="settings-inner">
+                            <svg class="gear" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M19.14 12.94a7.86 7.86 0 0 0 .05-.94 7.86 7.86 0 0 0-.05-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.08 7.08 0 0 0-1.63-.94l-.36-2.54a.48.48 0 0 0-.49-.42h-3.84a.48.48 0 0 0-.49.42l-.36 2.54c-.58.23-1.13.54-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.69 8.84a.5.5 0 0 0 .12.64l2.03 1.58a7.86 7.86 0 0 0-.05.94 7.86 7.86 0 0 0 .05.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .6.22l2.39-.96c.5.4 1.05.72 1.63.94l.36 2.54a.48.48 0 0 0 .49.42h3.84a.48.48 0 0 0 .49-.42l.36-2.54c.58-.23 1.13-.54 1.63-.94l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64ZM12 15.2A3.2 3.2 0 1 1 12 8.8a3.2 3.2 0 0 1 0 6.4Z"/>
+                            </svg>
+                            <span>设置</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel">
+                <h2>设计要点</h2>
+                <div class="notes">
+                    <div class="note">
+                        <strong>按钮不再漂白</strong>
+                        主体回到暖金与木色，强调“店招”和“牌匾”感，而不是奶白卡片。
+                    </div>
+                    <div class="note">
+                        <strong>主次状态更明确</strong>
+                        三颗主按钮保持同一家族，用左侧点缀色区分开始、继续、退出，但不打散整体风格。
+                    </div>
+                    <div class="note">
+                        <strong>文字承载区更稳定</strong>
+                        中间亮带更整块，保证 Cocos 的 Label 叠上去时不脏、不压背景。
+                    </div>
+                    <div class="note">
+                        <strong>设置按钮同语言</strong>
+                        设置入口不再像另一套组件，尺寸更小，但视觉语法与主按钮一致。
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</body>
+</html>

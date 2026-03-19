@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>冷面人生 - A向标题备选</title>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Liu+Jian+Mao+Cao&family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@700;900&family=Zhi+Mang+Xing&display=swap");
+
+        :root {
+            --bg: #1f130f;
+            --ink: #552a1f;
+            --paper: #fff5e7;
+            --cold: #6e8db1;
+            --cold-soft: #dbe9f7;
+            --warm: #da6f46;
+            --warm-soft: #ffe2bc;
+            --line: #6b3b2b;
+            --shadow: 0 22px 54px rgba(43, 18, 11, 0.18);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background:
+                radial-gradient(circle at top, rgba(255, 214, 153, 0.18), transparent 28%),
+                linear-gradient(180deg, #2a1914 0%, var(--bg) 100%);
+            color: #fff2e5;
+        }
+
+        .board {
+            width: min(1460px, calc(100vw - 48px));
+            margin: 26px auto 40px;
+            padding: 28px 28px 38px;
+            border-radius: 34px;
+            background:
+                linear-gradient(90deg, rgba(109, 143, 184, 0.16), rgba(255, 235, 198, 0.16), rgba(232, 122, 73, 0.16)),
+                rgba(255, 249, 241, 0.08);
+            box-shadow: 0 26px 80px rgba(12, 5, 4, 0.3);
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 20px;
+            margin-bottom: 22px;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            margin-bottom: 8px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(255, 249, 241, 0.14);
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 0.18em;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 34px;
+            letter-spacing: 0.08em;
+        }
+
+        .topbar p,
+        .hint {
+            margin: 8px 0 0;
+            font-size: 15px;
+            color: rgba(255, 239, 220, 0.74);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+        }
+
+        .card {
+            position: relative;
+            min-height: 400px;
+            padding: 24px;
+            border-radius: 28px;
+            background:
+                linear-gradient(90deg, rgba(219, 233, 247, 0.94), rgba(255, 245, 228, 0.95) 48%, rgba(255, 212, 162, 0.94) 100%);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 18% 16%, rgba(255,255,255,0.52), transparent 16%),
+                radial-gradient(circle at 82% 18%, rgba(255,241,214,0.46), transparent 18%),
+                linear-gradient(90deg, rgba(91, 119, 154, 0.12), transparent 36%, transparent 64%, rgba(224, 112, 61, 0.12));
+        }
+
+        .badge {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(255, 251, 245, 0.78);
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            color: var(--ink);
+            z-index: 1;
+        }
+
+        .badge b {
+            width: 30px;
+            height: 30px;
+            display: grid;
+            place-items: center;
+            border-radius: 999px;
+            background: rgba(109, 143, 184, 0.14);
+        }
+
+        .stage {
+            position: relative;
+            height: 255px;
+            display: grid;
+            place-items: center;
+            z-index: 1;
+        }
+
+        .title {
+            position: relative;
+            line-height: 0.9;
+            white-space: nowrap;
+        }
+
+        .title span {
+            display: inline-block;
+        }
+
+        .cold {
+            color: var(--cold-soft);
+        }
+
+        .warm {
+            color: #fff0dd;
+        }
+
+        .meta {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            z-index: 1;
+        }
+
+        .meta strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 20px;
+            color: var(--ink);
+            letter-spacing: 0.08em;
+        }
+
+        .meta p {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.75;
+            color: rgba(80, 45, 32, 0.76);
+        }
+
+        .pick {
+            min-width: 88px;
+            padding: 12px 16px;
+            border-radius: 18px;
+            background: rgba(255, 250, 243, 0.86);
+            text-align: center;
+            color: var(--ink);
+            font-size: 15px;
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            box-shadow: 0 10px 24px rgba(65, 24, 12, 0.12);
+        }
+
+        .v1 .title {
+            font-family: "Ma Shan Zheng", cursive;
+            font-size: 158px;
+            letter-spacing: 0.04em;
+            transform: rotate(-4deg);
+            text-shadow:
+                0 4px 0 rgba(107, 59, 43, 0.18),
+                0 14px 0 rgba(107, 59, 43, 0.1),
+                0 26px 38px rgba(55, 19, 10, 0.18);
+        }
+
+        .v1 .title .cold {
+            -webkit-text-stroke: 5px rgba(92, 120, 157, 0.82);
+            paint-order: stroke fill;
+        }
+
+        .v1 .title .warm {
+            -webkit-text-stroke: 5px rgba(145, 66, 39, 0.82);
+            paint-order: stroke fill;
+        }
+
+        .v1 .underline {
+            position: absolute;
+            bottom: 48px;
+            width: 280px;
+            height: 18px;
+            border-radius: 999px;
+            transform: rotate(-10deg);
+            background: linear-gradient(90deg, rgba(106, 137, 177, 0.88), rgba(255, 228, 171, 0.94), rgba(224, 111, 63, 0.9));
+        }
+
+        .v2 .title {
+            font-family: "Ma Shan Zheng", cursive;
+            font-size: 152px;
+            letter-spacing: 0.02em;
+            transform: rotate(-6deg);
+        }
+
+        .v2 .title::before,
+        .v2 .title::after {
+            content: "冷面人生";
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: -1;
+        }
+
+        .v2 .title::before {
+            transform: translate(-6px, 4px);
+            color: rgba(85, 116, 152, 0.34);
+        }
+
+        .v2 .title::after {
+            transform: translate(6px, 8px);
+            color: rgba(220, 113, 66, 0.24);
+        }
+
+        .v2 .title .cold {
+            color: #f4fbff;
+            text-shadow:
+                -4px 0 0 rgba(90, 118, 153, 0.7),
+                0 18px 26px rgba(60, 21, 11, 0.14);
+        }
+
+        .v2 .title .warm {
+            color: #fff3e3;
+            text-shadow:
+                4px 0 0 rgba(219, 108, 61, 0.64),
+                0 18px 26px rgba(60, 21, 11, 0.14);
+        }
+
+        .v2 .ink-splash {
+            position: absolute;
+            width: 150px;
+            height: 86px;
+            border-radius: 50%;
+            background: rgba(112, 64, 44, 0.1);
+            filter: blur(4px);
+            transform: translateY(78px);
+        }
+
+        .v3 .title-wrap {
+            position: relative;
+            display: inline-block;
+            padding: 24px 34px 20px;
+            border-radius: 26px;
+            background: linear-gradient(180deg, rgba(255, 251, 244, 0.78), rgba(255, 243, 225, 0.62));
+            box-shadow: inset 0 0 0 3px rgba(126, 72, 49, 0.14);
+        }
+
+        .v3 .title {
+            font-family: "Ma Shan Zheng", cursive;
+            font-size: 142px;
+            letter-spacing: 0.04em;
+            transform: rotate(-3deg);
+            text-shadow: 0 18px 30px rgba(65, 24, 12, 0.12);
+        }
+
+        .v3 .title .cold {
+            color: #f3fbff;
+            -webkit-text-stroke: 6px rgba(88, 116, 153, 0.76);
+            paint-order: stroke fill;
+        }
+
+        .v3 .title .warm {
+            color: #fff3de;
+            -webkit-text-stroke: 6px rgba(147, 69, 41, 0.78);
+            paint-order: stroke fill;
+        }
+
+        .v3 .stamp {
+            position: absolute;
+            right: -8px;
+            top: -10px;
+            width: 78px;
+            height: 78px;
+            border: 5px solid rgba(151, 60, 42, 0.82);
+            border-radius: 12px;
+            color: rgba(151, 60, 42, 0.82);
+            display: grid;
+            place-items: center;
+            font-family: "Noto Serif SC", serif;
+            font-size: 24px;
+            font-weight: 900;
+            transform: rotate(8deg);
+        }
+
+        .v4 .title {
+            font-family: "Zhi Mang Xing", cursive;
+            font-size: 158px;
+            letter-spacing: 0.08em;
+            transform: rotate(-2deg);
+            text-shadow:
+                0 5px 0 rgba(109, 59, 40, 0.15),
+                0 22px 34px rgba(60, 19, 10, 0.16);
+        }
+
+        .v4 .title .cold {
+            -webkit-text-stroke: 4px rgba(92, 122, 160, 0.82);
+            paint-order: stroke fill;
+        }
+
+        .v4 .title .warm {
+            -webkit-text-stroke: 4px rgba(219, 108, 61, 0.78);
+            paint-order: stroke fill;
+            transform: translateY(8px);
+        }
+
+        .v4 .sweep {
+            position: absolute;
+            width: 330px;
+            height: 22px;
+            border-radius: 999px;
+            transform: rotate(-14deg) translateY(72px);
+            background: linear-gradient(90deg, rgba(102, 133, 173, 0.88), rgba(255, 229, 172, 0.94), rgba(222, 108, 60, 0.9));
+        }
+
+        .v5 .title {
+            font-family: "Liu Jian Mao Cao", cursive;
+            font-size: 170px;
+            letter-spacing: 0.06em;
+            color: #fff9ee;
+            text-shadow:
+                -6px 0 0 rgba(99, 128, 163, 0.56),
+                6px 0 0 rgba(224, 111, 64, 0.46),
+                0 22px 36px rgba(66, 20, 11, 0.16);
+        }
+
+        .v5 .title .cold {
+            transform: translateY(-4px);
+        }
+
+        .v5 .title .warm {
+            transform: translateY(10px) rotate(4deg);
+        }
+
+        .v5 .tag {
+            position: absolute;
+            top: 22px;
+            right: 64px;
+            padding: 8px 14px;
+            border-radius: 14px;
+            background: rgba(255, 250, 243, 0.84);
+            color: #8f4a32;
+            font-size: 18px;
+            font-weight: 900;
+            transform: rotate(6deg);
+        }
+
+        .v6 .title {
+            font-family: "Noto Serif SC", serif;
+            font-weight: 900;
+            font-size: 126px;
+            letter-spacing: 0.16em;
+            padding: 18px 28px 20px 36px;
+            border-radius: 22px;
+            background: linear-gradient(180deg, rgba(85, 54, 44, 0.95), rgba(67, 37, 29, 0.98));
+            border: 6px solid rgba(255, 237, 210, 0.86);
+            box-shadow:
+                0 12px 0 rgba(77, 41, 30, 0.16),
+                0 24px 36px rgba(44, 16, 10, 0.18);
+        }
+
+        .v6 .title .cold {
+            color: #edf7ff;
+            text-shadow: -3px 0 0 rgba(111, 146, 187, 0.5);
+        }
+
+        .v6 .title .warm {
+            color: #fff0dc;
+            text-shadow: 3px 0 0 rgba(225, 130, 76, 0.44);
+        }
+
+        .v6 .rail {
+            position: absolute;
+            bottom: 34px;
+            width: 360px;
+            height: 32px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(117, 147, 183, 0.24), rgba(255, 243, 214, 0.98), rgba(232, 124, 72, 0.26));
+            box-shadow: inset 0 4px 10px rgba(255,255,255,0.56);
+        }
+
+        @media (max-width: 1180px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="board">
+        <div class="topbar">
+            <div>
+                <div class="eyebrow">A VARIANTS</div>
+                <h1>冷面人生 厚笔招牌体第二轮</h1>
+                <p>A 保留，下面这批都沿着 A 的方向继续压。</p>
+            </div>
+            <div class="hint">直接回 A1 / A2 / A3 / A4 / A5 / A6</div>
+        </div>
+
+        <section class="grid">
+            <article class="card v1">
+                <div class="badge"><b>A1</b> 厚描边主招牌</div>
+                <div class="stage">
+                    <div class="title"><span class="cold">冷面</span><span class="warm">人生</span></div>
+                    <div class="underline"></div>
+                </div>
+                <div class="meta">
+                    <div>
+                        <strong>最接近原 A</strong>
+                        <p>更厚，更大，更稳。</p>
+                    </div>
+                    <div class="pick">选 A1</div>
+                </div>
+            </article>
+
+            <article class="card v2">
+                <div class="badge"><b>A2</b> 双影毛笔体</div>
+                <div class="stage">
+                    <div class="title"><span class="cold">冷面</span><span class="warm">人生</span></div>
+                    <div class="ink-splash"></div>
+                </div>
+                <div class="meta">
+                    <div>
+                        <strong>墨感更强</strong>
+                        <p>冷暖双影叠出来，比较有笔锋。</p>
+                    </div>
+                    <div class="pick">选 A2</div>
+                </div>
+            </article>
+
+            <article class="card v3">
+                <div class="badge"><b>A3</b> 牌匾毛笔体</div>
+                <div class="stage">
+                    <div class="title-wrap">
+                        <div class="stamp">冷面</div>
+                        <div class="title"><span class="cold">冷面</span><span class="warm">人生</span></div>
+                    </div>
+                </div>
+                <div class="meta">
+                    <div>
+                        <strong>更像店头门脸</strong>
+                        <p>生活味更足，不那么像片名。</p>
+                    </div>
+                    <div class="pick">选 A3</div>
+                </div>
+            </article>
+
+            <article class="card v4">
+                <div class="badge"><b>A4</b> 行草厚笔体</div>
+                <div class="stage">
+                    <div class="title"><span class="cold">冷面</span><span class="warm">人生</span></div>
+                    <div class="sweep"></div>
+                </div>
+                <div class="meta">
+                    <div>
+                        <strong>更有剧情片名感</strong>
+                        <p>还是厚，但比 A 更戏剧化。</p>
+                    </div>
+                    <div class="pick">选 A4</div>
+                </div>
+            </article>
+
+            <article class="card v5">
+                <div class="badge"><b>A5</b> 飞白长笔体</div>
+                <div class="stage">
+                    <div class="tag">内热</div>
+                    <div class="title"><span class="cold">冷面</span><span class="warm">人生</span></div>
+                </div>
+                <div class="meta">
+                    <div>
+                        <strong>最特别</strong>
+                        <p>个性更强，但也更挑整体画面。</p>
+                    </div>
+                    <div class="pick">选 A5</div>
+                </div>
+            </article>
+
+            <article class="card v6">
+                <div class="badge"><b>A6</b> 木牌匾额体</div>
+                <div class="stage">
+                    <div class="title"><span class="cold">冷面</span><span class="warm">人生</span></div>
+                    <div class="rail"></div>
+                </div>
+                <div class="meta">
+                    <div>
+                        <strong>最厚重</strong>
+                        <p>招牌感最强，也最像经营游戏标题。</p>
+                    </div>
+                    <div class="pick">选 A6</div>
+                </div>
+            </article>
+        </section>
+    </main>
+</body>
+</html>

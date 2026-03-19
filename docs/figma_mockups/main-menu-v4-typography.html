@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>冷面人生 - 文字与冷暖过渡稿</title>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+    <style>
+        :root {
+            --cold-1: #c9d8e8;
+            --cold-2: #88a1be;
+            --cold-3: #536b88;
+            --warm-1: #ffe2a2;
+            --warm-2: #ffaf61;
+            --warm-3: #ef6e3f;
+            --ink: #57261b;
+            --ink-soft: rgba(87, 38, 27, 0.7);
+            --paper: rgba(255, 247, 236, 0.86);
+            --paper-soft: rgba(255, 247, 236, 0.4);
+            --title-light: #fff4d9;
+            --shadow: 0 18px 50px rgba(44, 14, 8, 0.16);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #241613;
+        }
+
+        .screen {
+            position: relative;
+            width: min(1280px, 100vw);
+            height: min(720px, 100vh);
+            overflow: hidden;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 26% 20%, rgba(255,255,255,0.34), transparent 20%),
+                radial-gradient(circle at 76% 18%, rgba(255,246,199,0.42), transparent 22%),
+                linear-gradient(
+                    90deg,
+                    var(--cold-1) 0%,
+                    var(--cold-2) 25%,
+                    #d7c9c4 46%,
+                    #e9c7aa 52%,
+                    var(--warm-1) 68%,
+                    var(--warm-2) 85%,
+                    var(--warm-3) 100%
+                );
+        }
+
+        .screen::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.12), rgba(0,0,0,0.08)),
+                linear-gradient(90deg, rgba(60, 83, 114, 0.12), transparent 36%, transparent 64%, rgba(200, 105, 52, 0.12));
+        }
+
+        .screen::after {
+            content: "";
+            position: absolute;
+            top: -8%;
+            bottom: -8%;
+            left: 50%;
+            width: 280px;
+            transform: translateX(-50%);
+            background: radial-gradient(circle, rgba(255,255,255,0.28), rgba(255,255,255,0.06) 46%, transparent 78%);
+            filter: blur(20px);
+            opacity: 0.9;
+        }
+
+        .side-copy {
+            position: absolute;
+            top: 90px;
+            width: 220px;
+            font-size: 16px;
+            line-height: 1.9;
+            letter-spacing: 0.08em;
+            z-index: 2;
+        }
+
+        .side-copy.left {
+            left: 70px;
+            text-align: left;
+            color: rgba(46, 64, 86, 0.88);
+        }
+
+        .side-copy.right {
+            right: 70px;
+            text-align: right;
+            color: rgba(125, 56, 34, 0.9);
+        }
+
+        .side-copy .tag {
+            display: inline-block;
+            margin-bottom: 14px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: var(--paper-soft);
+            backdrop-filter: blur(6px);
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: 0.18em;
+        }
+
+        .header {
+            position: absolute;
+            top: 84px;
+            left: 50%;
+            width: 760px;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 3;
+        }
+
+        .mini {
+            display: inline-block;
+            padding: 10px 18px;
+            border-radius: 999px;
+            background: rgba(255, 248, 238, 0.52);
+            backdrop-filter: blur(10px);
+            color: var(--ink-soft);
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: 0.24em;
+        }
+
+        .title-row {
+            margin: 22px 0 14px;
+            display: flex;
+            justify-content: center;
+            align-items: end;
+            gap: 8px;
+            line-height: 1;
+        }
+
+        .char {
+            position: relative;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            color: var(--title-light);
+            text-shadow:
+                0 3px 0 rgba(87, 38, 27, 0.24),
+                0 16px 30px rgba(55, 20, 12, 0.14);
+        }
+
+        .char.big {
+            font-size: 104px;
+        }
+
+        .char.small {
+            font-size: 92px;
+            transform: translateY(6px);
+        }
+
+        .char.cold {
+            color: #eef6ff;
+            -webkit-text-stroke: 6px rgba(64, 83, 107, 0.58);
+            paint-order: stroke fill;
+        }
+
+        .char.neutral {
+            color: #fff7e9;
+            -webkit-text-stroke: 6px rgba(120, 88, 71, 0.45);
+            paint-order: stroke fill;
+        }
+
+        .char.warm {
+            color: #fff2d6;
+            -webkit-text-stroke: 6px rgba(131, 57, 34, 0.54);
+            paint-order: stroke fill;
+        }
+
+        .title-row .divider {
+            width: 44px;
+            height: 12px;
+            margin: 0 12px 20px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(90,124,162,0.72), rgba(255,214,148,0.86), rgba(227,103,59,0.72));
+            box-shadow: 0 0 18px rgba(255,255,255,0.22);
+        }
+
+        .subtitle {
+            margin: 0 auto;
+            max-width: 680px;
+            padding: 0 24px;
+            font-size: 20px;
+            line-height: 1.9;
+            color: rgba(92, 48, 34, 0.9);
+            font-weight: 700;
+        }
+
+        .menu {
+            position: absolute;
+            left: 50%;
+            top: 350px;
+            width: 330px;
+            transform: translateX(-50%);
+            z-index: 4;
+            text-align: center;
+        }
+
+        .button {
+            display: grid;
+            place-items: center;
+            width: 100%;
+            margin-bottom: 16px;
+            border-radius: 999px;
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+        }
+
+        .button.start {
+            height: 74px;
+            background: linear-gradient(180deg, rgba(255, 219, 102, 0.96), rgba(255, 154, 57, 0.96));
+            color: #6a2d1b;
+        }
+
+        .button.continue {
+            height: 62px;
+            background: rgba(255, 245, 227, 0.82);
+            color: #65301f;
+        }
+
+        .button.quit {
+            height: 58px;
+            background: rgba(79, 47, 40, 0.22);
+            color: #fff4e2;
+            border: 1px solid rgba(255,255,255,0.16);
+        }
+
+        .settings {
+            position: absolute;
+            left: 50%;
+            top: 300px;
+            transform: translateX(170px);
+            width: 62px;
+            height: 62px;
+            display: grid;
+            place-items: center;
+            border-radius: 20px;
+            background: rgba(255, 248, 236, 0.44);
+            backdrop-filter: blur(10px);
+            color: rgba(92, 49, 35, 0.92);
+            font-size: 28px;
+            font-weight: 900;
+            box-shadow: var(--shadow);
+            z-index: 4;
+        }
+
+        .footer {
+            position: absolute;
+            left: 50%;
+            bottom: 34px;
+            width: 760px;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 3;
+        }
+
+        .footer .note {
+            display: inline-block;
+            padding: 14px 24px;
+            border-radius: 999px;
+            background: rgba(255, 247, 236, 0.38);
+            backdrop-filter: blur(8px);
+            font-size: 14px;
+            line-height: 1.8;
+            color: rgba(88, 45, 31, 0.84);
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <main class="screen">
+        <aside class="side-copy left">
+            <div class="tag">表面的他</div>
+            不擅表达，不会轻易把情绪写在脸上。<br>
+            先看到的，是冷静、安静，甚至有些疏离。
+        </aside>
+
+        <aside class="side-copy right">
+            <div class="tag">内心的他</div>
+            在每一次营业、每一位顾客和每一个选择里，慢慢学会温柔地面对自己。
+        </aside>
+
+        <header class="header">
+            <div class="mini">STORY MENU · COLD OUTSIDE / WARM INSIDE</div>
+            <div class="title-row">
+                <span class="char big cold">冷</span>
+                <span class="char small neutral">面</span>
+                <span class="divider"></span>
+                <span class="char big warm">人</span>
+                <span class="char small warm">生</span>
+            </div>
+            <p class="subtitle">
+                一个面瘫青年经营烤冷面摊的治愈故事。<br>
+                从外在的冷，到内心的暖，故事从第一天开张开始。
+            </p>
+        </header>
+
+        <div class="settings">⚙</div>
+
+        <section class="menu">
+            <div class="button start">开始游戏</div>
+            <div class="button continue">继续游戏</div>
+            <div class="button quit">退出游戏</div>
+        </section>
+
+        <footer class="footer">
+            <div class="note">
+                首页只作为故事入口。新游戏先进入第一关；通过后再解锁后续场景与准备阶段内容。
+            </div>
+        </footer>
+    </main>
+</body>
+</html>

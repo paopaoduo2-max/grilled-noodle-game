@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>烤冷面物语 标准行草设计方案 V24</title>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Zhi+Mang+Xing&family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&display=swap");
+
+        :root {
+            --paper: #fff4e8;
+            --paper-2: #ffe8c9;
+            --ink: #4e2c21;
+            --wood-1: #9c694b;
+            --wood-2: #78483a;
+            --wood-3: #573026;
+            --cold-1: #d8e7f7;
+            --cold-2: #9ab8d8;
+            --cold-3: #6989ad;
+            --warm-1: #ffe3b7;
+            --warm-2: #ffb86a;
+            --warm-3: #dd6c42;
+            --flame-1: #ffd76d;
+            --flame-2: #ff9752;
+            --flame-3: #d9522d;
+            --board: #f6ebdc;
+            --line: rgba(86, 47, 32, 0.12);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top, rgba(255, 205, 142, 0.14), transparent 24%),
+                linear-gradient(180deg, #2a1814 0%, #1c110e 100%);
+        }
+
+        .board {
+            width: 1760px;
+            margin: 0 auto;
+            padding: 36px 36px 60px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 24px;
+            color: #fff2df;
+        }
+
+        .topbar h1 {
+            margin: 0;
+            font-size: 34px;
+            letter-spacing: 0.08em;
+        }
+
+        .topbar p {
+            margin: 0;
+            font-size: 13px;
+            opacity: 0.82;
+            letter-spacing: 0.08em;
+        }
+
+        .panel {
+            border-radius: 28px;
+            padding: 24px;
+            background: var(--board);
+            box-shadow:
+                0 28px 64px rgba(18, 7, 4, 0.22),
+                inset 0 1px 0 rgba(255, 255, 255, 0.38);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            position: relative;
+            min-height: 358px;
+            padding: 18px 18px 20px;
+            border-radius: 24px;
+            border: 1px solid var(--line);
+            background:
+                linear-gradient(90deg,
+                    var(--cold-1) 0%,
+                    var(--cold-2) 30%,
+                    #d6cbc2 45%,
+                    #edd5b3 55%,
+                    var(--warm-1) 72%,
+                    var(--warm-2) 88%,
+                    var(--warm-3) 100%);
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.06)),
+                linear-gradient(90deg, rgba(81, 109, 145, 0.11), transparent 35%, transparent 65%, rgba(219, 116, 71, 0.12));
+            pointer-events: none;
+        }
+
+        .tag {
+            position: relative;
+            z-index: 2;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 18px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: rgba(83, 43, 30, 0.1);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+        }
+
+        .plaque-wrap {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin: 10px auto 0;
+        }
+
+        .shadow {
+            position: absolute;
+            inset: 16px 18px -10px;
+            border-radius: 32px;
+            background: rgba(51, 20, 12, 0.2);
+            filter: blur(14px);
+            transform: translateY(14px);
+        }
+
+        .plaque {
+            position: relative;
+            padding: 24px 22px 22px;
+            border-radius: 32px;
+            background:
+                linear-gradient(180deg, rgba(156, 105, 75, 0.98), rgba(120, 72, 58, 0.98) 42%, rgba(87, 48, 38, 0.98) 100%);
+            border: 4px solid rgba(246, 223, 191, 0.76);
+            box-shadow:
+                inset 0 2px 0 rgba(255, 236, 209, 0.22),
+                inset 0 -8px 16px rgba(44, 20, 13, 0.18),
+                0 22px 44px rgba(38, 14, 8, 0.16);
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .plaque::before {
+            content: "";
+            position: absolute;
+            inset: 12px;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 236, 209, 0.14);
+        }
+
+        .plaque::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            opacity: 0.42;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.06), transparent 28%, transparent 76%, rgba(0,0,0,0.06)),
+                repeating-linear-gradient(90deg, rgba(255,255,255,0.018) 0 3px, rgba(0,0,0,0.016) 3px 6px);
+        }
+
+        .main-title,
+        .sub-title,
+        .divider {
+            position: relative;
+            z-index: 2;
+        }
+
+        .main-title {
+            position: relative;
+            margin: 0;
+            white-space: nowrap;
+            font-family: "Zhi Mang Xing", cursive;
+            font-size: 94px;
+            line-height: 1;
+            letter-spacing: 0.02em;
+            text-indent: 0.02em;
+            color: var(--paper);
+            text-shadow:
+                0 2px 0 rgba(255,255,255,0.14),
+                0 5px 0 rgba(111,58,41,0.3),
+                0 12px 24px rgba(60,25,14,0.16);
+        }
+
+        .main-title .char {
+            position: relative;
+            display: inline-block;
+        }
+
+        .main-title .main-cold {
+            color: #eef6ff;
+        }
+
+        .main-title .main-warm {
+            color: #fff0cf;
+        }
+
+        .main-title .main-hot {
+            color: #fff1c7;
+        }
+
+        .main-title .char-fire::before,
+        .main-title .char-fire::after {
+            content: "";
+            position: absolute;
+            z-index: -1;
+            background: linear-gradient(180deg, var(--flame-1), var(--flame-2) 55%, var(--flame-3) 100%);
+            opacity: 0.95;
+            filter: drop-shadow(0 3px 5px rgba(126, 46, 22, 0.2));
+        }
+
+        .main-title .char-fire::before {
+            width: 18px;
+            height: 28px;
+            top: -8px;
+            left: 18px;
+            border-radius: 70% 30% 70% 30% / 80% 40% 60% 30%;
+            transform: rotate(-16deg);
+        }
+
+        .main-title .char-fire::after {
+            width: 14px;
+            height: 22px;
+            top: 2px;
+            left: 34px;
+            border-radius: 60% 40% 70% 30% / 70% 30% 80% 40%;
+            transform: rotate(18deg);
+        }
+
+        .main-title .char-cool::after {
+            content: "";
+            position: absolute;
+            left: 6px;
+            right: 6px;
+            bottom: 10px;
+            height: 10px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(168, 205, 236, 0.28), rgba(230, 243, 255, 0.08));
+            filter: blur(6px);
+            z-index: -1;
+        }
+
+        .main-title .char-story::after {
+            content: "";
+            position: absolute;
+            right: -2px;
+            top: 10px;
+            width: 24px;
+            height: 12px;
+            border-top: 2px solid rgba(255, 226, 180, 0.55);
+            border-radius: 50%;
+            transform: rotate(18deg);
+            opacity: 0.7;
+        }
+
+        .divider {
+            width: 220px;
+            height: 12px;
+            margin: 10px auto 8px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 70px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255, 232, 205, 0.84));
+            transform: translateY(-50%);
+        }
+
+        .divider::before { left: 8px; }
+
+        .divider::after {
+            right: 8px;
+            transform: translateY(-50%) scaleX(-1);
+        }
+
+        .divider span {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ffd9a6;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 0 4px rgba(255, 239, 214, 0.12);
+        }
+
+        .sub-title {
+            margin: 0;
+            white-space: nowrap;
+            font-family: "Ma Shan Zheng", cursive;
+            font-size: 34px;
+            letter-spacing: 0.12em;
+            text-indent: 0.12em;
+            text-shadow: 0 2px 0 rgba(95, 52, 38, 0.28);
+        }
+
+        .sub-title .cold {
+            color: #dceeff;
+        }
+
+        .sub-title .warm {
+            color: #ffe1b6;
+        }
+
+        .notes {
+            position: relative;
+            z-index: 2;
+            margin-top: 20px;
+            padding: 14px 16px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.18);
+            color: rgba(78, 44, 33, 0.9);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .style-a .main-title {
+            transform: rotate(-1deg);
+        }
+
+        .style-a .sub-title {
+            font-size: 33px;
+        }
+
+        .style-b .main-title {
+            font-size: 96px;
+            text-shadow:
+                -1px 0 0 rgba(128,160,198,0.12),
+                1px 0 0 rgba(226,129,78,0.12),
+                0 5px 0 rgba(111,58,41,0.28),
+                0 12px 24px rgba(60,25,14,0.16);
+        }
+
+        .style-b .char-fire::before {
+            width: 20px;
+            height: 32px;
+            top: -10px;
+            left: 16px;
+        }
+
+        .style-b .char-fire::after {
+            width: 16px;
+            height: 24px;
+            top: 0;
+            left: 36px;
+        }
+
+        .style-b .sub-title {
+            font-family: "ZCOOL XiaoWei", serif;
+            font-size: 30px;
+            letter-spacing: 0.22em;
+            text-indent: 0.22em;
+        }
+
+        .style-c .main-title {
+            font-size: 98px;
+            letter-spacing: 0.03em;
+            text-indent: 0.03em;
+        }
+
+        .style-c .char-fire::before {
+            width: 16px;
+            height: 34px;
+            top: -14px;
+            left: 20px;
+            transform: rotate(-8deg);
+        }
+
+        .style-c .char-fire::after {
+            width: 18px;
+            height: 22px;
+            top: 6px;
+            left: 38px;
+            transform: rotate(26deg);
+        }
+
+        .style-c .sub-title {
+            font-size: 32px;
+        }
+
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin-top: 22px;
+        }
+
+        .legend-item {
+            padding: 14px 16px;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.16);
+            color: #fff2df;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .legend-item strong {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            letter-spacing: 0.06em;
+        }
+    </style>
+</head>
+<body>
+    <div class="board">
+        <div class="topbar">
+            <h1>标准行草标题设计方案 V24</h1>
+            <p>只基于标准行草体做局部设计，保持 Figma 可实现</p>
+        </div>
+
+        <div class="panel">
+            <div class="grid">
+                <section class="card style-a">
+                    <div class="tag">A · 稳态店招版</div>
+                    <div class="plaque-wrap">
+                        <div class="shadow"></div>
+                        <div class="plaque">
+                            <h2 class="main-title">
+                                <span class="char char-fire main-hot">烤</span>
+                                <span class="char char-cool main-cold">冷</span>
+                                <span class="char char-cool main-cold">面</span>
+                                <span class="char main-warm">物</span>
+                                <span class="char char-story main-warm">语</span>
+                            </h2>
+                            <div class="divider"><span></span></div>
+                            <p class="sub-title">
+                                <span class="cold">冷面</span><span class="warm">人生</span>
+                            </p>
+                            <div class="notes">
+                                主标题保持最稳，`烤` 字只加两片火苗。`冷面` 偏冷白蓝，`物语` 用暖米金收尾。适合直接做正式标题组件。
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="card style-b">
+                    <div class="tag">B · 冷暖分区强化版</div>
+                    <div class="plaque-wrap">
+                        <div class="shadow"></div>
+                        <div class="plaque">
+                            <h2 class="main-title">
+                                <span class="char char-fire main-hot">烤</span>
+                                <span class="char char-cool main-cold">冷</span>
+                                <span class="char char-cool main-cold">面</span>
+                                <span class="char main-warm">物</span>
+                                <span class="char char-story main-warm">语</span>
+                            </h2>
+                            <div class="divider"><span></span></div>
+                            <p class="sub-title">
+                                <span class="cold">冷面</span><span class="warm">人生</span>
+                            </p>
+                            <div class="notes">
+                                加强左右冷暖分区，主标题左右边缘分别带冷暖色投影，适合放在你现在的左右冷暖背景上，识别更明确。
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="card style-c">
+                    <div class="tag">C · 火候笔意版</div>
+                    <div class="plaque-wrap">
+                        <div class="shadow"></div>
+                        <div class="plaque">
+                            <h2 class="main-title">
+                                <span class="char char-fire main-hot">烤</span>
+                                <span class="char char-cool main-cold">冷</span>
+                                <span class="char char-cool main-cold">面</span>
+                                <span class="char main-warm">物</span>
+                                <span class="char char-story main-warm">语</span>
+                            </h2>
+                            <div class="divider"><span></span></div>
+                            <p class="sub-title">
+                                <span class="cold">冷面</span><span class="warm">人生</span>
+                            </p>
+                            <div class="notes">
+                                `烤` 字火苗更高一点，`语` 字尾加轻微收笔装饰，整体更有笔意，但仍是可直接在 Figma 里用文字加矢量实现的范围。
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <strong>统一约束</strong>
+                    主标题一行，副标题一行。全部基于标准行草骨架，不做重扭曲，不用复杂烟雾和粒子。
+                </div>
+                <div class="legend-item">
+                    <strong>可直接在 Figma 做</strong>
+                    文字本体、描边、轻阴影、双色填充、矢量火苗、局部高光，都能直接做成可导出的分层组件。
+                </div>
+                <div class="legend-item">
+                    <strong>建议拆层</strong>
+                    `Title_Main`、`Title_Sub`、`Title_Flame_Decor` 三层拆开，后续进 Cocos 也更稳。
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

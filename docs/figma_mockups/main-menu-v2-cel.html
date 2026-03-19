@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>烤冷面大师 - 赛璐璐首页视觉稿</title>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+    <style>
+        :root {
+            --bg-top: #ffd46d;
+            --bg-mid: #ff9f50;
+            --bg-bottom: #ef6c3c;
+            --ink: #5a2417;
+            --ink-soft: #7c3320;
+            --cream: #fff3d8;
+            --cream-deep: #ffdca4;
+            --brown: #7f3d25;
+            --brown-dark: #5c2818;
+            --orange: #ff8f37;
+            --orange-deep: #f3652c;
+            --yellow: #ffd95c;
+            --green: #7ec874;
+            --green-deep: #4e9f57;
+            --red: #df5640;
+            --line: 4px solid var(--ink);
+            --shadow: 0 8px 0 rgba(90, 36, 23, 0.85);
+            --panel-shadow: 0 18px 0 rgba(90, 36, 23, 0.38);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background:
+                radial-gradient(circle at 15% 20%, rgba(255, 244, 201, 0.7), transparent 22%),
+                radial-gradient(circle at 84% 14%, rgba(255, 248, 219, 0.54), transparent 18%),
+                linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 52%, var(--bg-bottom) 100%);
+            color: var(--ink);
+        }
+
+        .screen {
+            position: relative;
+            width: min(1280px, 100vw);
+            height: min(720px, 100vh);
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 50% 110%, rgba(137, 47, 22, 0.22), transparent 40%),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(90, 36, 23, 0.08));
+        }
+
+        .burst,
+        .burst::before,
+        .burst::after {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 246, 198, 0.25);
+        }
+
+        .burst {
+            top: 44px;
+            left: 72px;
+            width: 180px;
+            height: 180px;
+        }
+
+        .burst::before,
+        .burst::after {
+            content: "";
+        }
+
+        .burst::before {
+            top: 50px;
+            left: 860px;
+            width: 140px;
+            height: 140px;
+        }
+
+        .burst::after {
+            top: 280px;
+            left: 1040px;
+            width: 120px;
+            height: 120px;
+        }
+
+        .header {
+            position: absolute;
+            top: 44px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 2;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 10px 18px;
+            border: var(--line);
+            border-radius: 999px;
+            background: var(--cream);
+            box-shadow: 0 6px 0 rgba(90, 36, 23, 0.35);
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+        }
+
+        h1 {
+            margin: 18px 0 12px;
+            font-size: 78px;
+            line-height: 1;
+            letter-spacing: 0.08em;
+            color: var(--cream);
+            -webkit-text-stroke: 8px var(--ink);
+            paint-order: stroke fill;
+            text-shadow: 0 10px 0 rgba(90, 36, 23, 0.24);
+        }
+
+        .subtitle {
+            display: inline-block;
+            margin: 0;
+            padding: 12px 20px;
+            border: var(--line);
+            border-radius: 999px;
+            background: rgba(255, 243, 215, 0.86);
+            font-size: 21px;
+            font-weight: 700;
+            color: var(--brown-dark);
+        }
+
+        .content {
+            position: absolute;
+            inset: 186px 72px 74px;
+            display: grid;
+            grid-template-columns: 1.12fr 0.88fr;
+            gap: 28px;
+            align-items: stretch;
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            border: var(--line);
+            border-radius: 40px;
+            background: linear-gradient(180deg, #ffe9c0 0%, #ffc06e 100%);
+            box-shadow: var(--panel-shadow);
+            padding: 28px 30px 24px;
+        }
+
+        .hero-bubble {
+            display: inline-block;
+            max-width: 420px;
+            padding: 16px 20px;
+            border: var(--line);
+            border-radius: 24px;
+            background: #fff8ea;
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1.6;
+            box-shadow: 0 8px 0 rgba(90, 36, 23, 0.18);
+        }
+
+        .hero-bubble small {
+            display: block;
+            margin-top: 6px;
+            color: var(--ink-soft);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .scene {
+            position: absolute;
+            inset: auto 24px 18px 24px;
+            height: 320px;
+        }
+
+        .stall-roof {
+            position: absolute;
+            left: 68px;
+            right: 68px;
+            top: 0;
+            height: 84px;
+            border: var(--line);
+            border-bottom-width: 6px;
+            border-radius: 22px 22px 12px 12px;
+            background: repeating-linear-gradient(
+                90deg,
+                #ff7342 0 38px,
+                #fff0bf 38px 76px
+            );
+        }
+
+        .sign {
+            position: absolute;
+            left: 158px;
+            right: 158px;
+            top: 28px;
+            height: 66px;
+            border: var(--line);
+            border-radius: 18px;
+            background: #7b2f1d;
+            color: #fff4d1;
+            display: grid;
+            place-items: center;
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 0.16em;
+        }
+
+        .counter {
+            position: absolute;
+            left: 18px;
+            right: 18px;
+            bottom: 0;
+            height: 172px;
+            border: var(--line);
+            border-radius: 32px;
+            background: linear-gradient(180deg, #ffe6b4 0%, #ffb357 100%);
+        }
+
+        .counter::before {
+            content: "";
+            position: absolute;
+            left: 18px;
+            right: 18px;
+            top: 20px;
+            height: 26px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.38);
+        }
+
+        .chef {
+            position: absolute;
+            left: 56px;
+            bottom: 104px;
+            width: 154px;
+            height: 176px;
+        }
+
+        .chef .head {
+            position: absolute;
+            left: 32px;
+            top: 18px;
+            width: 88px;
+            height: 88px;
+            border: var(--line);
+            border-radius: 50%;
+            background: #ffe6bf;
+        }
+
+        .chef .hat {
+            position: absolute;
+            left: 18px;
+            top: 0;
+            width: 118px;
+            height: 56px;
+            border: var(--line);
+            border-radius: 24px 24px 18px 18px;
+            background: #fff7eb;
+        }
+
+        .chef .body {
+            position: absolute;
+            left: 20px;
+            bottom: 0;
+            width: 114px;
+            height: 90px;
+            border: var(--line);
+            border-radius: 24px 24px 18px 18px;
+            background: #ff7342;
+        }
+
+        .food {
+            position: absolute;
+            bottom: 28px;
+            width: 168px;
+            height: 72px;
+            border: var(--line);
+            border-radius: 999px;
+            background: linear-gradient(180deg, #ffe4ab 0%, #ef9d42 100%);
+        }
+
+        .food::before {
+            content: "";
+            position: absolute;
+            left: 18px;
+            right: 18px;
+            top: 14px;
+            height: 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.34);
+        }
+
+        .food.a { left: 208px; }
+        .food.b { left: 380px; width: 184px; }
+
+        .garnish {
+            position: absolute;
+            bottom: 66px;
+            width: 22px;
+            height: 22px;
+            border: 3px solid var(--ink);
+            border-radius: 50%;
+            background: var(--green);
+        }
+
+        .g1 { left: 262px; }
+        .g2 { left: 310px; background: var(--yellow); }
+        .g3 { left: 450px; background: var(--red); }
+        .g4 { left: 502px; }
+
+        .menu {
+            position: relative;
+            border: var(--line);
+            border-radius: 40px;
+            background: #7c301f;
+            box-shadow: var(--panel-shadow);
+            padding: 28px 24px 24px;
+            color: var(--cream);
+        }
+
+        .settings {
+            position: absolute;
+            top: 22px;
+            right: 22px;
+            width: 68px;
+            height: 68px;
+            border: var(--line);
+            border-radius: 22px;
+            background: #ffe4a7;
+            display: grid;
+            place-items: center;
+            font-size: 30px;
+            box-shadow: 0 8px 0 rgba(90, 36, 23, 0.28);
+            color: var(--ink);
+        }
+
+        .menu h2 {
+            margin: 4px 0 8px;
+            padding-right: 90px;
+            font-size: 34px;
+            line-height: 1.2;
+        }
+
+        .menu p {
+            margin: 0 0 24px;
+            font-size: 17px;
+            line-height: 1.7;
+            color: #ffe0ba;
+        }
+
+        .button {
+            position: relative;
+            padding: 18px 20px;
+            border: var(--line);
+            border-radius: 24px;
+            text-align: center;
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .button.start {
+            background: linear-gradient(180deg, #ffd853 0%, #ff8f37 100%);
+            color: var(--ink);
+        }
+
+        .button.continue {
+            background: linear-gradient(180deg, #fff3d8 0%, #ffddb0 100%);
+            color: var(--ink);
+        }
+
+        .button.quit {
+            background: linear-gradient(180deg, #d86449 0%, #bb4132 100%);
+            color: #fff5ea;
+        }
+
+        .note {
+            margin-top: 16px;
+            padding: 16px 18px;
+            border: var(--line);
+            border-radius: 22px;
+            background: #fff2d2;
+            color: var(--brown-dark);
+            font-size: 15px;
+            line-height: 1.7;
+            box-shadow: 0 8px 0 rgba(90, 36, 23, 0.2);
+        }
+
+        .footer {
+            position: absolute;
+            left: 72px;
+            right: 72px;
+            bottom: 18px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 18px;
+            align-items: center;
+        }
+
+        .footer .tip,
+        .footer .version {
+            padding: 14px 18px;
+            border: var(--line);
+            border-radius: 999px;
+            background: rgba(255, 245, 222, 0.92);
+            box-shadow: 0 8px 0 rgba(90, 36, 23, 0.18);
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .footer .version {
+            white-space: nowrap;
+        }
+
+        @media (max-width: 1100px) {
+            .content {
+                inset: 174px 34px 80px;
+                grid-template-columns: 1fr;
+            }
+
+            .hero,
+            .menu {
+                min-height: 300px;
+            }
+
+            .footer {
+                left: 34px;
+                right: 34px;
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="screen">
+        <div class="burst"></div>
+
+        <header class="header">
+            <div class="tag">CEL SHADED FOOD STYLE</div>
+            <h1>烤冷面大师</h1>
+            <p class="subtitle">夜市开张了，先从第一锅热面开始</p>
+        </header>
+
+        <section class="content">
+            <article class="hero">
+                <div class="hero-bubble">
+                    首页只做“开局入口”，不把地图、场景、备菜和购物这些准备阶段内容提前堆上来。
+                    <small>通关第一关后，再解锁后续场景与准备阶段流程。</small>
+                </div>
+
+                <div class="scene">
+                    <div class="stall-roof"></div>
+                    <div class="sign">烤冷面招牌摊</div>
+                    <div class="chef">
+                        <div class="hat"></div>
+                        <div class="head"></div>
+                        <div class="body"></div>
+                    </div>
+                    <div class="counter"></div>
+                    <div class="food a"></div>
+                    <div class="food b"></div>
+                    <div class="garnish g1"></div>
+                    <div class="garnish g2"></div>
+                    <div class="garnish g3"></div>
+                    <div class="garnish g4"></div>
+                </div>
+            </article>
+
+            <aside class="menu">
+                <div class="settings">⚙</div>
+                <h2>开始今晚的营业</h2>
+                <p>赛璐璐风格用粗描边、块面高光和暖食欲色，让首页一眼就有“街头美食摊”的记忆点。</p>
+
+                <div class="button start">开始游戏</div>
+                <div class="button continue">继续游戏</div>
+                <div class="button quit">退出游戏</div>
+
+                <div class="note">
+                    继续游戏后进入准备阶段：选择场景、去购物、去备菜；准备完成后再进入营业阶段。
+                </div>
+            </aside>
+        </section>
+
+        <footer class="footer">
+            <div class="tip">提示：新游戏先进入第一关，新手关完成后才解锁后续场景选择。</div>
+            <div class="version">Mockup V2 · Cel Food Menu</div>
+        </footer>
+    </main>
+</body>
+</html>

@@ -1,0 +1,134 @@
+{
+  "ver": "1.0.27",
+  "importer": "image",
+  "imported": true,
+  "uuid": "ca1e4f28-ea09-4232-9000-84eeb7b18d26",
+  "files": [
+    ".json",
+    ".png"
+  ],
+  "subMetas": {
+    "6c48a": {
+      "importer": "texture",
+      "uuid": "ca1e4f28-ea09-4232-9000-84eeb7b18d26@6c48a",
+      "displayName": "oil_mark_left",
+      "id": "6c48a",
+      "name": "texture",
+      "userData": {
+        "wrapModeS": "clamp-to-edge",
+        "wrapModeT": "clamp-to-edge",
+        "imageUuidOrDatabaseUri": "ca1e4f28-ea09-4232-9000-84eeb7b18d26",
+        "isUuid": true,
+        "visible": false,
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "anisotropy": 0
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "f9941": {
+      "importer": "sprite-frame",
+      "uuid": "ca1e4f28-ea09-4232-9000-84eeb7b18d26@f9941",
+      "displayName": "oil_mark_left",
+      "id": "f9941",
+      "name": "spriteFrame",
+      "userData": {
+        "trimThreshold": 1,
+        "rotated": false,
+        "offsetX": 0,
+        "offsetY": -0.5,
+        "trimX": 133,
+        "trimY": 128,
+        "width": 335,
+        "height": 241,
+        "rawWidth": 601,
+        "rawHeight": 496,
+        "borderTop": 0,
+        "borderBottom": 0,
+        "borderLeft": 0,
+        "borderRight": 0,
+        "packable": true,
+        "pixelsToUnit": 100,
+        "pivotX": 0.5,
+        "pivotY": 0.5,
+        "meshType": 0,
+        "vertices": {
+          "rawPosition": [
+            -167.5,
+            -120.5,
+            0,
+            167.5,
+            -120.5,
+            0,
+            -167.5,
+            120.5,
+            0,
+            167.5,
+            120.5,
+            0
+          ],
+          "indexes": [
+            0,
+            1,
+            2,
+            2,
+            1,
+            3
+          ],
+          "uv": [
+            133,
+            368,
+            468,
+            368,
+            133,
+            127,
+            468,
+            127
+          ],
+          "nuv": [
+            0.22129783693843594,
+            0.2560483870967742,
+            0.778702163061564,
+            0.2560483870967742,
+            0.22129783693843594,
+            0.7419354838709677,
+            0.778702163061564,
+            0.7419354838709677
+          ],
+          "minPos": [
+            -167.5,
+            -120.5,
+            0
+          ],
+          "maxPos": [
+            167.5,
+            120.5,
+            0
+          ]
+        },
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "ca1e4f28-ea09-4232-9000-84eeb7b18d26@6c48a",
+        "atlasUuid": "",
+        "trimType": "auto"
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "type": "sprite-frame",
+    "hasAlpha": true,
+    "fixAlphaTransparencyArtifacts": false,
+    "redirect": "ca1e4f28-ea09-4232-9000-84eeb7b18d26@6c48a"
+  }
+}

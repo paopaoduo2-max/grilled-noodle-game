@@ -1,0 +1,13 @@
+{
+  "ver": "2.0.4",
+  "importer": "animation-clip",
+  "imported": true,
+  "uuid": "3bd6827c-5ea5-4bad-ab2b-7ae7c1a8b9b9",
+  "files": [
+    ".bin"
+  ],
+  "subMetas": {},
+  "userData": {
+    "name": "LotteryHintBounce"
+  }
+}

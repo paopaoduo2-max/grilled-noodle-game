@@ -1,0 +1,3183 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>第3关：赌石店 - UI 原型</title>
+    <style>
+      :root {
+        --bg: #efe3cd;
+        --ink: #2b1c15;
+        --shadow: #1b120c;
+        --panel: #25362b;
+        --panel-light: #334637;
+        --paper: #f8f1e5;
+        --jade: #2c9a70;
+        --jade-light: #8be2b7;
+        --jade-deep: #0f6e4b;
+        --rust: #c2462c;
+        --gold: #f3cf76;
+        --stone: #8b857a;
+        --stone-dark: #5f5a52;
+        --cream: #fff7e3;
+        --accent: #e7b04f;
+        --tip-delay: 0.2s;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at top left, #f8f1df 0%, transparent 45%),
+          radial-gradient(circle at bottom right, #e7d4b0 0%, transparent 48%),
+          linear-gradient(145deg, #f3e6cf 0%, #e6d1ac 100%);
+        color: var(--ink);
+        font-family: "STKaiti", "KaiTi", "FangSong", "Microsoft YaHei", sans-serif;
+        display: grid;
+        place-items: center;
+        padding: 28px;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: repeating-linear-gradient(
+          45deg,
+          rgba(255, 255, 255, 0.03),
+          rgba(255, 255, 255, 0.03) 10px,
+          transparent 10px,
+          transparent 20px
+        );
+        pointer-events: none;
+      }
+
+      .app {
+        width: min(1240px, 100%);
+        display: grid;
+        gap: 18px;
+      }
+
+      .stagger {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      body.loaded .stagger {
+        animation: riseIn 0.6s ease forwards;
+        animation-delay: var(--delay, 0s);
+      }
+
+      @keyframes riseIn {
+        from {
+          opacity: 0;
+          transform: translateY(16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .topbar {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .chip {
+        position: relative;
+        padding: 8px 14px;
+        background: #1d1b18;
+        color: #fff0d1;
+        border: 3px solid var(--shadow);
+        border-radius: 14px;
+        font-size: 14px;
+        width: fit-content;
+      }
+
+      .chip::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: var(--shadow);
+        border-radius: 14px;
+        transform: translate(4px, 4px);
+        z-index: -1;
+      }
+
+      .title-block {
+        text-align: center;
+      }
+
+      .title {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 18px;
+        background: var(--panel);
+        color: var(--gold);
+        border: 4px solid var(--shadow);
+        border-radius: 14px;
+        font-size: 26px;
+        font-weight: bold;
+        letter-spacing: 2px;
+      }
+
+      .title .gem {
+        width: 14px;
+        height: 14px;
+        background: radial-gradient(circle at 30% 30%, #d0ffe6, #2bb57e 70%);
+        border: 2px solid var(--shadow);
+        transform: rotate(45deg);
+      }
+
+      .subtitle {
+        margin-top: 6px;
+        display: inline-block;
+        padding: 4px 10px;
+        background: var(--paper);
+        border: 2px solid var(--shadow);
+        border-radius: 8px;
+        font-size: 12px;
+      }
+
+      .stage {
+        position: relative;
+        padding: 10px;
+      }
+
+      .stage-shadow {
+        position: absolute;
+        inset: 0;
+        background: var(--shadow);
+        border-radius: 22px;
+        transform: translate(8px, 8px);
+      }
+
+      .stage-inner {
+        position: relative;
+        z-index: 1;
+        background: linear-gradient(165deg, #2f4134, #1c2a22);
+        border: 4px solid var(--shadow);
+        border-radius: 22px;
+        padding: 16px;
+        display: grid;
+        gap: 14px;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+      }
+
+      .stage-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        background: var(--panel-light);
+        border: 3px solid var(--shadow);
+        border-radius: 14px;
+        padding: 10px 12px;
+        color: #ffeac7;
+      }
+
+      .shop-sign {
+        font-size: 18px;
+        font-weight: bold;
+      }
+
+      .head-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .btn {
+        border: 3px solid var(--shadow);
+        background: var(--gold);
+        border-radius: 12px;
+        padding: 6px 12px;
+        font-weight: bold;
+        cursor: pointer;
+        font-family: inherit;
+      }
+
+      .btn.secondary {
+        background: #fff5df;
+      }
+
+      .btn.warning {
+        background: #f5b9a8;
+      }
+
+      .btn.ghost {
+        background: #efe7d9;
+      }
+
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .market-hint {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .hint-chip {
+        background: var(--paper);
+        border: 2px solid var(--shadow);
+        border-radius: 999px;
+        padding: 4px 10px;
+        font-size: 12px;
+        display: inline-flex;
+        gap: 6px;
+        align-items: center;
+      }
+
+      .hint-chip span {
+        color: var(--jade-deep);
+        font-weight: bold;
+      }
+
+      .help-pop {
+        position: absolute;
+        top: 78px;
+        right: 26px;
+        background: #fff7e4;
+        border: 2px solid var(--shadow);
+        border-radius: 12px;
+        padding: 8px 10px;
+        font-size: 12px;
+        display: grid;
+        gap: 4px;
+        opacity: 0;
+        transform: translateY(-6px);
+        pointer-events: none;
+        transition: 0.2s ease;
+      }
+
+      .help-pop.show {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+
+      .arena {
+        display: grid;
+        grid-template-columns: 1.45fr 0.9fr;
+        gap: 16px;
+      }
+
+      .shelf {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+      }
+
+      .stone-card {
+        background: linear-gradient(160deg, #fff7e6, #f1dfc4);
+        border: 3px solid var(--shadow);
+        border-radius: 14px;
+        padding: 8px;
+        display: grid;
+        gap: 8px;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+        min-height: 156px;
+        box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
+      }
+
+      .stone-card:hover {
+        transform: translateY(-4px);
+      }
+
+      .stone-card.active {
+        border-color: var(--gold);
+        box-shadow: 0 0 0 3px rgba(243, 207, 118, 0.5);
+      }
+
+      .stone-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+        font-weight: bold;
+        font-size: 14px;
+      }
+
+      .stone-grade {
+        background: var(--panel);
+        color: #ffeac7;
+        border: 2px solid var(--shadow);
+        border-radius: 999px;
+        padding: 2px 6px;
+        font-size: 12px;
+      }
+
+      .stone-thumb {
+        height: 54px;
+        border-radius: 12px;
+        border: 2px solid var(--shadow);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .stone-thumb::after {
+        content: "";
+        position: absolute;
+        inset: 8px 12px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.2);
+        filter: blur(6px);
+      }
+
+      .thumb-0 {
+        background: linear-gradient(145deg, #6f7f6c, #99b5a0);
+      }
+
+      .thumb-1 {
+        background: linear-gradient(145deg, #9c8b6c, #c2b08b);
+      }
+
+      .thumb-2 {
+        background: linear-gradient(145deg, #6d6c62, #938b7e);
+      }
+
+      .thumb-3 {
+        background: linear-gradient(145deg, #4e4a45, #7a6f64);
+      }
+
+      .stone-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+
+      .tag {
+        padding: 2px 6px;
+        background: #f4e3c3;
+        border: 2px solid var(--shadow);
+        border-radius: 999px;
+        font-size: 11px;
+      }
+
+      .stone-cost {
+        font-size: 12px;
+        display: flex;
+        justify-content: space-between;
+        gap: 6px;
+      }
+
+      .cutting-zone {
+        margin-top: 10px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        align-items: center;
+      }
+
+      .stone-stage {
+        position: relative;
+        display: grid;
+        place-items: center;
+        padding: 18px;
+        background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.08), transparent 55%),
+          linear-gradient(160deg, #1f2f26, #152118);
+        border: 3px solid var(--shadow);
+        border-radius: 16px;
+        min-height: 260px;
+        overflow: hidden;
+        transform-origin: center;
+        --fx-x: 50%;
+        --fx-y: 50%;
+        --fx-rot: -12deg;
+        --fx-rgb: 150, 240, 210;
+        --fx-soft-rgb: 90, 180, 150;
+        --fx-deep-rgb: 40, 110, 90;
+        --window-glow-rgb: 150, 240, 210;
+        --cut-x: 50%;
+        --cut-y: 50%;
+        --cut-rot: -12deg;
+        --cut-len: 220px;
+        --gem-size: 52px;
+        --gem-glow: 18px;
+        --gem-rot: 0deg;
+        --gem-shape: 10% 12%, 32% 2%, 66% 6%, 92% 28%, 98% 58%, 76% 92%, 40% 100%, 12% 78%;
+        --gem-light-rgb: 232, 255, 245;
+        --gem-core-rgb: 47, 191, 126;
+        --gem-deep-rgb: 14, 90, 60;
+        --gem-glow-alpha: 0.7;
+        --gem-bright: 1;
+        --gem-sat: 1;
+        --gem-alpha: 1;
+        --gem-pop: 1;
+        --split-left-x: -40px;
+        --split-left-y: 0px;
+        --split-right-x: 40px;
+        --split-right-y: 0px;
+      }
+
+      .stone-stage::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.12), transparent 45%);
+        pointer-events: none;
+      }
+
+      .stone-hit {
+        position: absolute;
+        inset: 0;
+        z-index: 7;
+        pointer-events: none;
+        touch-action: none;
+      }
+
+      .stone-stage.mode-open .stone-hit,
+      .stone-stage.mode-cut .stone-hit {
+        pointer-events: auto;
+        cursor: crosshair;
+      }
+
+      .cut-line {
+        position: absolute;
+        left: var(--cut-x);
+        top: var(--cut-y);
+        width: var(--cut-len);
+        height: 3px;
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(var(--cut-rot));
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(var(--fx-rgb), 0.9),
+          transparent
+        );
+        box-shadow: 0 0 10px rgba(var(--fx-rgb), 0.6);
+        z-index: 6;
+        pointer-events: none;
+      }
+
+      .stone-stage.drawing .cut-line {
+        opacity: 0.75;
+      }
+
+      .stone-stage.cut-anim .cut-line {
+        animation: cutLineFlash 0.7s ease;
+      }
+
+      .fx-layer {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 4;
+      }
+
+      .fx-slice {
+        position: absolute;
+        left: var(--fx-x);
+        top: var(--fx-y);
+        width: 280px;
+        height: 6px;
+        background: linear-gradient(
+          90deg,
+          transparent 0%,
+          rgba(var(--fx-rgb), 0.18) 30%,
+          rgba(var(--fx-rgb), 0.9) 50%,
+          rgba(var(--fx-rgb), 0.18) 70%,
+          transparent 100%
+        );
+        transform: translate(-50%, -50%) rotate(var(--fx-rot)) scaleX(0);
+        opacity: 0;
+        filter: blur(0.6px);
+        box-shadow: 0 0 18px rgba(var(--fx-rgb), 0.75);
+      }
+
+      .fx-flash {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.95) 0%,
+          rgba(255, 255, 255, 0.45) 35%,
+          transparent 70%
+        );
+        opacity: 0;
+      }
+
+      .fx-dust {
+        position: absolute;
+        left: var(--fx-x);
+        top: calc(var(--fx-y) + 60px);
+        width: 260px;
+        height: 120px;
+        transform: translate(-50%, -50%) scale(0.2);
+        opacity: 0;
+        background: radial-gradient(circle, rgba(var(--fx-rgb), 0.55), transparent 70%);
+        filter: blur(4px);
+      }
+
+      .fx-glow {
+        position: absolute;
+        left: var(--fx-x);
+        top: var(--fx-y);
+        width: 280px;
+        height: 280px;
+        transform: translate(-50%, -50%) scale(0.6);
+        border-radius: 50%;
+        border: 3px solid rgba(var(--fx-soft-rgb), 0.45);
+        box-shadow: 0 0 22px rgba(var(--fx-rgb), 0.35);
+        opacity: 0;
+      }
+
+      .fx-ring {
+        position: absolute;
+        left: var(--fx-x);
+        top: var(--fx-y);
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        border: 3px solid rgba(var(--fx-rgb), 0.7);
+        transform: translate(-50%, -50%) scale(0.4);
+        opacity: 0;
+      }
+
+      .fx-veil {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          circle,
+          rgba(var(--fx-rgb), 0.55) 0%,
+          rgba(var(--fx-rgb), 0.2) 45%,
+          transparent 75%
+        );
+        opacity: 0;
+      }
+
+      .fx-sweep {
+        position: absolute;
+        left: var(--fx-x);
+        top: var(--fx-y);
+        width: 320px;
+        height: 80px;
+        transform: translate(-50%, -50%) rotate(var(--fx-rot)) scaleX(0.4);
+        opacity: 0;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(var(--fx-rgb), 0.55),
+          transparent
+        );
+        filter: blur(1px);
+      }
+
+      .fx-spot {
+        position: absolute;
+        left: var(--fx-x);
+        top: var(--fx-y);
+        width: 140px;
+        height: 140px;
+        transform: translate(-50%, -50%) scale(0.4);
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(var(--fx-rgb), 0.95), transparent 70%);
+        opacity: 0;
+      }
+
+      .fx-aura {
+        position: absolute;
+        left: var(--fx-x);
+        top: var(--fx-y);
+        width: 240px;
+        height: 240px;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        opacity: 0;
+        filter: blur(0.6px);
+      }
+
+      .fx-sparks {
+        position: absolute;
+        left: var(--fx-x);
+        top: var(--fx-y);
+        width: 10px;
+        height: 10px;
+        transform: translate(-50%, -50%);
+      }
+
+      .fx-sparks span {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 5px;
+        height: 22px;
+        border-radius: 999px;
+        background: rgba(var(--fx-rgb), 0.95);
+        transform: translate(-50%, -50%) rotate(var(--angle)) translateY(0);
+        opacity: 0;
+        box-shadow: 0 0 12px rgba(var(--fx-rgb), 0.85);
+      }
+
+      .fx-sparks span:nth-child(1) {
+        --angle: -40deg;
+      }
+
+      .fx-sparks span:nth-child(2) {
+        --angle: -15deg;
+      }
+
+      .fx-sparks span:nth-child(3) {
+        --angle: 10deg;
+      }
+
+      .fx-sparks span:nth-child(4) {
+        --angle: 35deg;
+      }
+
+      .fx-sparks span:nth-child(5) {
+        --angle: 60deg;
+      }
+
+      .fx-sparks span:nth-child(6) {
+        --angle: 85deg;
+      }
+
+      .fx-sparks span:nth-child(7) {
+        --angle: 110deg;
+      }
+
+      .fx-sparks span:nth-child(8) {
+        --angle: 135deg;
+      }
+
+      .fx-sparks span:nth-child(9) {
+        --angle: 160deg;
+      }
+
+      .fx-sparks span:nth-child(10) {
+        --angle: 185deg;
+      }
+
+      .stone-stage.open-anim .fx-slice {
+        animation: sliceIn 0.55s ease;
+      }
+
+      .stone-stage.open-anim .fx-glow {
+        animation: glowPulse 0.75s ease;
+      }
+
+      .stone-stage.open-anim .fx-flash {
+        animation: flashOut 0.4s ease;
+      }
+
+      .stone-stage.open-anim .fx-sparks span {
+        animation: sparkBurst 0.55s ease;
+      }
+
+      .stone-stage.open-anim .fx-sweep {
+        animation: sweepPass 0.6s ease;
+      }
+
+      .stone-stage.open-anim .fx-veil {
+        animation: veilFlashSoft 0.5s ease;
+      }
+
+      .stone-stage.open-anim .fx-spot {
+        animation: spotFlash 0.6s ease;
+      }
+
+      .stone-stage.open-anim .stone-display {
+        animation: openShake 0.55s ease;
+      }
+
+      .stone-stage.open-anim .stone-window {
+        animation: windowPop 0.5s ease;
+      }
+
+      .stone-stage.open-anim .stone-window::after {
+        animation: windowSheen 0.6s ease;
+      }
+
+      .stone-stage.cut-anim .fx-flash {
+        animation: flashOut 0.5s ease;
+      }
+
+      .stone-stage.cut-anim .fx-veil {
+        animation: veilFlash 0.55s ease;
+      }
+
+      .stone-stage.cut-anim .fx-spot {
+        animation: spotFlashStrong 0.7s ease;
+      }
+
+      .stone-stage.cut-anim .fx-slice {
+        animation: sliceIn 0.4s ease;
+      }
+
+      .stone-stage.cut-anim .fx-glow {
+        animation: glowPulse 0.6s ease;
+      }
+
+      .stone-stage.cut-anim .fx-ring {
+        animation: ringBurst 0.5s ease;
+      }
+
+      .stone-stage.cut-anim .fx-dust {
+        animation: dustBurst 0.5s ease;
+      }
+
+      .stone-stage.cut-anim .fx-sparks span {
+        animation: sparkBurstStrong 0.65s ease;
+      }
+
+      .stone-stage.cut-anim .stone-crack {
+        animation: crackPulse 0.45s ease;
+      }
+
+      .stone-stage.cut-anim .stone-display {
+        animation: cutShake 0.75s ease;
+      }
+
+      .stone-stage.abandon-anim .fx-dust {
+        animation: dustFade 0.35s ease;
+      }
+
+      .stone-stage.abandon-anim .fx-veil {
+        animation: veilFade 0.45s ease;
+      }
+
+      .stone-stage.abandon-anim .stone-display {
+        animation: abandonDrop 0.45s ease;
+      }
+
+      .stone-stage.open-anim {
+        animation: stageTilt 0.45s ease;
+        box-shadow: 0 0 24px rgba(var(--fx-rgb), 0.35);
+      }
+
+      .stone-stage.cut-anim {
+        animation: stageShake 0.5s ease;
+        box-shadow: 0 0 32px rgba(var(--fx-rgb), 0.45);
+      }
+
+      .stone-stage.result-good .fx-aura {
+        opacity: 0.85;
+        background: radial-gradient(circle, rgba(var(--fx-rgb), 0.75), transparent 65%);
+        animation: auraPulse 1.1s ease-in-out infinite;
+      }
+
+      .stone-stage.result-mid .fx-aura {
+        opacity: 0.65;
+        background: radial-gradient(circle, rgba(var(--fx-rgb), 0.55), transparent 65%);
+        animation: auraPulse 1.3s ease-in-out infinite;
+      }
+
+      .stone-stage.result-bad .fx-aura {
+        opacity: 0.45;
+        background: radial-gradient(circle, rgba(var(--fx-rgb), 0.35), transparent 65%);
+        animation: auraPulse 1.1s ease-in-out infinite;
+      }
+
+      .stone-stage.split-show .stone-display,
+      .stone-stage.split-show .stone-window {
+        opacity: 0;
+      }
+
+      .stone-stage.split-show .stone-split {
+        opacity: 1;
+      }
+
+      .stone-stage.split-show .stone-half.left {
+        animation: splitLeft 1.2s ease forwards;
+      }
+
+      .stone-stage.split-show .stone-half.right {
+        animation: splitRight 1.2s ease forwards;
+      }
+
+      .stone-stage.split-show .cut-glow {
+        animation: cutGlowPulse 1.4s ease;
+      }
+
+      .stone-stage.gem-good .gem-core {
+        --gem-light-rgb: 232, 255, 245;
+        --gem-core-rgb: 47, 191, 126;
+        --gem-deep-rgb: 14, 90, 60;
+        --gem-glow-alpha: 0.75;
+        --gem-bright: 1.08;
+        --gem-sat: 1.1;
+        --gem-alpha: 1;
+        --gem-shine: 0.78;
+      }
+
+      .stone-stage.gem-mid .gem-core {
+        --gem-light-rgb: 242, 255, 246;
+        --gem-core-rgb: 191, 231, 207;
+        --gem-deep-rgb: 79, 138, 107;
+        --gem-glow-alpha: 0.5;
+        --gem-bright: 0.95;
+        --gem-sat: 0.95;
+        --gem-alpha: 0.85;
+        --gem-shine: 0.55;
+      }
+
+      .stone-stage.gem-bad .gem-core {
+        --gem-light-rgb: 230, 232, 232;
+        --gem-core-rgb: 140, 150, 150;
+        --gem-deep-rgb: 70, 80, 85;
+        --gem-glow-alpha: 0.2;
+        --gem-bright: 0.8;
+        --gem-sat: 0.75;
+        --gem-alpha: 0.6;
+        --gem-shine: 0.35;
+      }
+
+      .stone-stage.split-show .gem-core {
+        animation: gemPop 0.9s ease forwards;
+      }
+
+      .stone-stage.result-bad .stone-display,
+      .stone-stage.result-bad .stone-half {
+        filter: grayscale(1) saturate(0.1) brightness(0.75);
+      }
+
+      .stone-stage.preview-good .fx-aura {
+        opacity: 0.35;
+        background: radial-gradient(circle, rgba(var(--fx-rgb), 0.45), transparent 70%);
+      }
+
+      .stone-stage.preview-mid .fx-aura {
+        opacity: 0.28;
+        background: radial-gradient(circle, rgba(var(--fx-rgb), 0.35), transparent 70%);
+      }
+
+      .stone-stage.preview-bad .fx-aura {
+        opacity: 0.22;
+        background: radial-gradient(circle, rgba(var(--fx-rgb), 0.28), transparent 70%);
+      }
+
+      @keyframes sliceIn {
+        0% {
+          opacity: 0;
+          transform: translate(-60%, -50%) rotate(-12deg) scaleX(0);
+        }
+        40% {
+          opacity: 1;
+          transform: translate(-50%, -50%) rotate(-12deg) scaleX(1);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-40%, -50%) rotate(-12deg) scaleX(0.6);
+        }
+      }
+
+      @keyframes glowPulse {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0.6);
+        }
+        60% {
+          opacity: 0.6;
+          transform: translate(-50%, -50%) scale(1);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(1.2);
+        }
+      }
+
+      @keyframes flashOut {
+        0% {
+          opacity: 0;
+        }
+        35% {
+          opacity: 0.8;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+
+      @keyframes veilFlash {
+        0% {
+          opacity: 0;
+        }
+        40% {
+          opacity: 0.85;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+
+      @keyframes veilFlashSoft {
+        0% {
+          opacity: 0;
+        }
+        45% {
+          opacity: 0.55;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+
+      @keyframes veilFade {
+        0% {
+          opacity: 0;
+        }
+        60% {
+          opacity: 0.45;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+
+      @keyframes spotFlash {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0.4);
+        }
+        40% {
+          opacity: 0.75;
+          transform: translate(-50%, -50%) scale(1);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(1.3);
+        }
+      }
+
+      @keyframes spotFlashStrong {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0.4);
+        }
+        35% {
+          opacity: 0.9;
+          transform: translate(-50%, -50%) scale(1.1);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(1.6);
+        }
+      }
+
+      @keyframes sweepPass {
+        0% {
+          opacity: 0;
+          transform: translate(-55%, -50%) rotate(18deg) scaleX(0.4);
+        }
+        35% {
+          opacity: 0.8;
+          transform: translate(-50%, -50%) rotate(18deg) scaleX(1);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-45%, -50%) rotate(18deg) scaleX(0.6);
+        }
+      }
+
+      @keyframes ringBurst {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0.4);
+        }
+        40% {
+          opacity: 0.6;
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(2.1);
+        }
+      }
+
+      @keyframes sparkBurst {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%) rotate(var(--angle)) translateY(0);
+        }
+        30% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) rotate(var(--angle)) translateY(-46px);
+        }
+      }
+
+      @keyframes sparkBurstStrong {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%) rotate(var(--angle)) translateY(0);
+        }
+        25% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) rotate(var(--angle)) translateY(-68px);
+        }
+      }
+
+      @keyframes dustBurst {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0.2);
+        }
+        60% {
+          opacity: 0.65;
+          transform: translate(-50%, -50%) scale(1.1);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(1.35);
+        }
+      }
+
+      @keyframes dustFade {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0.4);
+        }
+        60% {
+          opacity: 0.45;
+          transform: translate(-50%, -50%) scale(1);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(1.2);
+        }
+      }
+
+      @keyframes openShake {
+        0% {
+          transform: scale(1);
+        }
+        45% {
+          transform: scale(1.12) rotate(-1.6deg);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      @keyframes cutShake {
+        0% {
+          transform: scale(1) rotate(0deg);
+        }
+        25% {
+          transform: scale(1.16) rotate(-2.2deg);
+        }
+        60% {
+          transform: scale(0.92) rotate(1.8deg);
+        }
+        100% {
+          transform: scale(1) rotate(0deg);
+        }
+      }
+
+      @keyframes cutLineFlash {
+        0% {
+          opacity: 0.1;
+          transform: translate(-50%, -50%) rotate(var(--cut-rot)) scaleX(0.6);
+        }
+        35% {
+          opacity: 1;
+          transform: translate(-50%, -50%) rotate(var(--cut-rot)) scaleX(1.1);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) rotate(var(--cut-rot)) scaleX(1.4);
+        }
+      }
+
+      @keyframes cutGlowPulse {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%) rotate(var(--cut-rot)) scaleX(0.6);
+        }
+        40% {
+          opacity: 1;
+          transform: translate(-50%, -50%) rotate(var(--cut-rot)) scaleX(1.2);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) rotate(var(--cut-rot)) scaleX(1.6);
+        }
+      }
+
+      @keyframes splitLeft {
+        0% {
+          transform: translate(0, 0) rotate(0deg);
+        }
+        60% {
+          transform: translate(var(--split-left-x), var(--split-left-y)) rotate(-2deg);
+        }
+        100% {
+          transform: translate(var(--split-left-x), var(--split-left-y)) rotate(-2deg);
+        }
+      }
+
+      @keyframes splitRight {
+        0% {
+          transform: translate(0, 0) rotate(0deg);
+        }
+        60% {
+          transform: translate(var(--split-right-x), var(--split-right-y)) rotate(2deg);
+        }
+        100% {
+          transform: translate(var(--split-right-x), var(--split-right-y)) rotate(2deg);
+        }
+      }
+
+      @keyframes gemPop {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, -50%)
+            scale(calc(var(--gem-pop, 1) * 0.2))
+            rotate(calc(var(--gem-rot, 0deg) - 8deg));
+        }
+        40% {
+          opacity: var(--gem-alpha, 1);
+          transform: translate(-50%, -50%)
+            scale(calc(var(--gem-pop, 1) * 1.05))
+            rotate(calc(var(--gem-rot, 0deg) + 4deg));
+        }
+        100% {
+          opacity: var(--gem-alpha, 1);
+          transform: translate(-50%, -50%) scale(var(--gem-pop, 1)) rotate(var(--gem-rot, 0deg));
+        }
+      }
+
+      @keyframes abandonDrop {
+        0% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        60% {
+          opacity: 0.7;
+          transform: scale(0.95) translateY(6px);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      @keyframes stageTilt {
+        0% {
+          transform: translateY(0);
+        }
+        40% {
+          transform: translateY(-4px) rotate(-0.6deg);
+        }
+        100% {
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes stageShake {
+        0% {
+          transform: translate(0, 0);
+        }
+        25% {
+          transform: translate(-4px, 2px);
+        }
+        50% {
+          transform: translate(3px, -2px);
+        }
+        75% {
+          transform: translate(-2px, 1px);
+        }
+        100% {
+          transform: translate(0, 0);
+        }
+      }
+
+      @keyframes windowPop {
+        0% {
+          transform: translate(-50%, -50%) scale(0.2);
+        }
+        60% {
+          transform: translate(-50%, -50%) scale(1.1);
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(1);
+        }
+      }
+
+      @keyframes windowSheen {
+        0% {
+          opacity: 0;
+          transform: translateX(-80%);
+        }
+        30% {
+          opacity: 0.7;
+        }
+        100% {
+          opacity: 0;
+          transform: translateX(80%);
+        }
+      }
+
+      @keyframes windowGlow {
+        0% {
+          transform: translate(-50%, -50%) scale(1);
+        }
+        50% {
+          transform: translate(-50%, -50%) scale(1.04);
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(1);
+        }
+      }
+
+      @keyframes crackPulse {
+        0% {
+          opacity: 0.1;
+          transform: rotate(12deg) scale(0.9);
+        }
+        60% {
+          opacity: 0.8;
+          transform: rotate(12deg) scale(1);
+        }
+        100% {
+          opacity: 0.3;
+          transform: rotate(12deg) scale(1);
+        }
+      }
+
+      @keyframes auraPulse {
+        0% {
+          transform: translate(-50%, -50%) scale(0.9);
+        }
+        50% {
+          transform: translate(-50%, -50%) scale(1.05);
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(0.9);
+        }
+      }
+
+      .stone-display {
+        width: min(240px, 100%);
+        aspect-ratio: 1.15;
+        border-radius: 38% 42% 38% 46%;
+        background: linear-gradient(150deg, var(--stone), var(--stone-dark));
+        border: 3px solid var(--shadow);
+        position: relative;
+        z-index: 2;
+        animation: floatStone 3.2s ease-in-out infinite;
+        --cut-local-x: 60%;
+        --cut-local-y: 40%;
+        --cut-local-rot: 12deg;
+        transition: opacity 0.3s ease;
+      }
+
+      .stone-display::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background:
+          radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.18), transparent 45%),
+          radial-gradient(circle at 70% 60%, rgba(0, 0, 0, 0.25), transparent 55%),
+          repeating-radial-gradient(
+            circle at 40% 45%,
+            rgba(255, 255, 255, 0.08),
+            rgba(255, 255, 255, 0.08) 2px,
+            transparent 2px,
+            transparent 7px
+          );
+        opacity: 0.6;
+      }
+
+      .stone-display::after {
+        content: "";
+        position: absolute;
+        inset: 18% 25% 30% 18%;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.18);
+        filter: blur(10px);
+      }
+
+      .stone-split {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: min(240px, 100%);
+        aspect-ratio: 1.15;
+        transform: translate(-50%, -50%);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 5;
+      }
+
+      .stone-half {
+        position: absolute;
+        inset: 0;
+        border-radius: 38% 42% 38% 46%;
+        border: 3px solid var(--shadow);
+        background: linear-gradient(150deg, var(--stone), var(--stone-dark));
+        box-shadow: 0 10px 0 rgba(0, 0, 0, 0.25);
+        overflow: hidden;
+      }
+
+      .stone-half::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background:
+          radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.18), transparent 45%),
+          radial-gradient(circle at 70% 60%, rgba(0, 0, 0, 0.25), transparent 55%),
+          repeating-radial-gradient(
+            circle at 40% 45%,
+            rgba(255, 255, 255, 0.08),
+            rgba(255, 255, 255, 0.08) 2px,
+            transparent 2px,
+            transparent 7px
+          );
+        opacity: 0.6;
+      }
+
+      .cut-glow {
+        position: absolute;
+        left: var(--cut-x);
+        top: var(--cut-y);
+        width: var(--cut-len);
+        height: 10px;
+        transform: translate(-50%, -50%) rotate(var(--cut-rot));
+        opacity: 0;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(var(--fx-rgb), 0.95),
+          transparent
+        );
+        filter: blur(1px);
+        box-shadow: 0 0 20px rgba(var(--fx-rgb), 0.6);
+        z-index: 7;
+        pointer-events: none;
+      }
+
+      .gem-core {
+        position: absolute;
+        left: var(--fx-x);
+        top: var(--fx-y);
+        width: var(--gem-size);
+        height: var(--gem-size);
+        transform: translate(-50%, -50%) scale(0) rotate(var(--gem-rot, 0deg));
+        opacity: 0;
+        border-radius: 6px;
+        clip-path: polygon(var(--gem-shape));
+        background: radial-gradient(
+          circle at 30% 30%,
+          rgba(var(--gem-light-rgb), 0.95),
+          rgba(var(--gem-core-rgb), 1) 65%,
+          rgba(var(--gem-deep-rgb), 1) 100%
+        );
+        box-shadow: 0 0 var(--gem-glow) rgba(var(--gem-core-rgb), var(--gem-glow-alpha, 0.6));
+        filter: brightness(var(--gem-bright, 1)) saturate(var(--gem-sat, 1));
+        z-index: 8;
+        pointer-events: none;
+      }
+
+      .gem-core::after {
+        content: "";
+        position: absolute;
+        inset: 12%;
+        border-radius: 10px;
+        background: linear-gradient(140deg, rgba(255, 255, 255, 0.65), transparent 70%);
+        opacity: var(--gem-shine, 0.7);
+        clip-path: inherit;
+      }
+
+      @keyframes floatStone {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-6px);
+        }
+      }
+
+      .stone-window {
+        position: absolute;
+        width: 82px;
+        height: 56px;
+        left: 46%;
+        top: 45%;
+        transform: translate(-50%, -50%) scale(0.2) rotate(var(--window-rot, 0deg));
+        border-radius: 16px;
+        border: 3px solid var(--shadow);
+        opacity: 0;
+        transition: opacity 0.25s ease, transform 0.25s ease;
+        background: linear-gradient(145deg, #e8f5d9, #9ed7b4);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        clip-path: polygon(
+          var(
+            --window-shape,
+            12% 12%,
+            86% 6%,
+            96% 46%,
+            78% 92%,
+            22% 86%,
+            4% 50%
+          )
+        );
+      }
+
+      .stone-window.open {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1) rotate(var(--window-rot, 0deg));
+        box-shadow: 0 0 14px rgba(var(--window-glow-rgb), 0.6);
+      }
+
+      .stone-window.placing {
+        opacity: 0.35;
+        transform: translate(-50%, -50%) scale(0.85) rotate(var(--window-rot, 0deg));
+      }
+
+      .stone-window::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.4), transparent 45%),
+          radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.25), transparent 55%),
+          repeating-radial-gradient(
+            circle at 30% 40%,
+            rgba(255, 255, 255, 0.2),
+            rgba(255, 255, 255, 0.2) 2px,
+            transparent 2px,
+            transparent 6px
+          );
+        opacity: 0.35;
+        pointer-events: none;
+      }
+
+      .stone-window::after {
+        content: "";
+        position: absolute;
+        inset: -10% -80%;
+        background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.7), transparent);
+        opacity: 0;
+        transform: translateX(-80%);
+      }
+
+      .stone-window.good {
+        background:
+          radial-gradient(circle at 30% 30%, #f0fffb 0%, #9cf3c8 45%, #2aa172 75%, #0f5a42 100%),
+          radial-gradient(circle at 75% 70%, rgba(255, 255, 255, 0.35), transparent 60%);
+      }
+
+      .stone-window.mid {
+        background:
+          radial-gradient(circle at 30% 30%, #f2fff6 0%, #c7edd8 45%, #6aa27d 100%),
+          radial-gradient(circle at 70% 70%, rgba(255, 255, 255, 0.3), transparent 60%);
+      }
+
+      .stone-window.bad {
+        background:
+          radial-gradient(circle at 30% 30%, #f7f0ea 0%, #c9b5a6 45%, #6f5c52 100%),
+          radial-gradient(circle at 70% 70%, rgba(255, 255, 255, 0.25), transparent 60%);
+      }
+
+      .stone-window.open.good {
+        animation: windowGlow 1.2s ease-in-out infinite;
+      }
+
+      .stone-window.open.mid {
+        animation: windowGlow 1.4s ease-in-out infinite;
+      }
+
+      .stone-window.open.bad {
+        animation: windowGlow 1.1s ease-in-out infinite;
+      }
+
+      .stone-stage.open-anim .stone-window.open.good,
+      .stone-stage.open-anim .stone-window.open.mid,
+      .stone-stage.open-anim .stone-window.open.bad {
+        animation: windowPop 0.5s ease, windowGlow 1.2s ease-in-out 0.5s infinite;
+      }
+
+      .stone-crack {
+        position: absolute;
+        width: 120px;
+        height: 60px;
+        left: var(--cut-local-x);
+        top: var(--cut-local-y);
+        border-right: 3px dashed rgba(255, 255, 255, 0.3);
+        border-bottom: 3px dashed rgba(255, 255, 255, 0.3);
+        transform: translate(-50%, -50%) rotate(var(--cut-local-rot));
+        opacity: 0.2;
+      }
+
+      .result-stamp {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        padding: 6px 12px;
+        border: 3px solid var(--gold);
+        color: var(--gold);
+        background: rgba(0, 0, 0, 0.35);
+        border-radius: 999px;
+        font-weight: bold;
+        opacity: 0;
+        transform: scale(0.8);
+        z-index: 6;
+      }
+
+      .result-stamp.show {
+        opacity: 1;
+        transform: scale(1);
+        animation: stampPop 0.4s ease;
+      }
+
+      @keyframes stampPop {
+        from {
+          opacity: 0;
+          transform: scale(0.6);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .result-panel {
+        display: grid;
+        gap: 10px;
+      }
+
+      .result-block {
+        background: linear-gradient(160deg, #fff7e4, #f3e0c2);
+        border: 3px solid var(--shadow);
+        border-radius: 12px;
+        padding: 8px 10px;
+      }
+
+      .result-label {
+        font-size: 12px;
+        color: #6b4e33;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .term-tip {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        cursor: help;
+        color: inherit;
+      }
+
+      .term-tip::after {
+        content: attr(data-tip);
+        position: absolute;
+        bottom: 150%;
+        left: 50%;
+        min-width: 140px;
+        padding: 6px 8px;
+        background: #fff7e4;
+        color: #3a2a1b;
+        border: 2px solid var(--shadow);
+        border-radius: 8px;
+        font-size: 11px;
+        opacity: 0;
+        transform: translate(-50%, 6px);
+        pointer-events: none;
+        transition: 0.2s ease;
+        transition-delay: 0s;
+        z-index: 20;
+        white-space: nowrap;
+      }
+
+      .term-tip::before {
+        content: "";
+        position: absolute;
+        bottom: 115%;
+        left: calc(50% - 6px);
+        width: 8px;
+        height: 8px;
+        background: #fff7e4;
+        border-left: 2px solid var(--shadow);
+        border-top: 2px solid var(--shadow);
+        transform: rotate(45deg);
+        opacity: 0;
+        transition: 0.2s ease;
+        transition-delay: 0s;
+        z-index: 19;
+      }
+
+      .term-tip:hover::after,
+      .term-tip:hover::before {
+        opacity: 1;
+        transform: translate(-50%, 0);
+        transition-delay: var(--tip-delay);
+      }
+
+      .result-value {
+        margin-top: 6px;
+        font-size: 16px;
+        font-weight: bold;
+      }
+
+      .step-indicator {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 10px;
+      }
+
+      .step-dot {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        border: 3px solid var(--shadow);
+        display: grid;
+        place-items: center;
+        font-size: 12px;
+        background: #b6b1a6;
+        color: #ffffff;
+      }
+
+      .step-dot.active {
+        background: var(--jade);
+      }
+
+      .step-line {
+        flex: 1;
+        height: 4px;
+        background: #b6b1a6;
+        border-radius: 999px;
+        border: 2px solid var(--shadow);
+      }
+
+      .control-panel {
+        background: linear-gradient(160deg, #fff6e2, #f4e2c6);
+        border: 3px solid var(--shadow);
+        border-radius: 16px;
+        padding: 12px;
+        display: grid;
+        gap: 12px;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+      }
+
+      .panel-title {
+        font-weight: bold;
+        font-size: 16px;
+      }
+
+      .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+
+      .detail-item {
+        background: #fff9ef;
+        border: 2px solid var(--shadow);
+        border-radius: 10px;
+        padding: 6px 8px;
+        font-size: 12px;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .cost-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+
+      .cost-item {
+        background: #f0e5cf;
+        border: 2px solid var(--shadow);
+        border-radius: 10px;
+        padding: 6px 8px;
+        font-size: 12px;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .actions {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+
+      .advisor {
+        background: #fff5df;
+        border: 2px solid var(--shadow);
+        border-radius: 10px;
+        padding: 8px 10px;
+        font-size: 12px;
+        min-height: 54px;
+      }
+
+      .meter {
+        display: grid;
+        gap: 8px;
+      }
+
+      .meter-row {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+      }
+
+      .bar {
+        position: relative;
+        height: 10px;
+        background: #e1d7c0;
+        border: 2px solid var(--shadow);
+        border-radius: 999px;
+        overflow: hidden;
+      }
+
+      .bar span {
+        position: absolute;
+        inset: 0;
+        width: 50%;
+        background: var(--jade);
+      }
+
+      .bar.mid span {
+        background: #c6c16a;
+      }
+
+      .bar.bad span {
+        background: #b46d5b;
+      }
+
+      .status {
+        background: #1b1b1b;
+        color: #ffeac7;
+        border: 2px solid var(--shadow);
+        border-radius: 10px;
+        padding: 8px 10px;
+        font-size: 12px;
+      }
+
+      .history {
+        background: var(--panel-light);
+        border: 3px solid var(--shadow);
+        border-radius: 14px;
+        padding: 10px 12px;
+        color: #ffeac7;
+        display: grid;
+        gap: 8px;
+      }
+
+      .history-title {
+        font-weight: bold;
+      }
+
+      .history-list {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+
+      .history-item {
+        background: rgba(0, 0, 0, 0.25);
+        border: 2px solid var(--shadow);
+        border-radius: 10px;
+        padding: 6px 8px;
+        font-size: 12px;
+      }
+
+      .history-item.good {
+        border-color: var(--jade-light);
+      }
+
+      .history-item.bad {
+        border-color: #f6b1a2;
+      }
+
+      .history-item.abandon {
+        border-color: #c9b9a5;
+        color: #f1e2cf;
+      }
+
+      .history-item.placeholder {
+        opacity: 0.7;
+      }
+
+      @media (max-width: 1100px) {
+        .arena {
+          grid-template-columns: 1fr;
+        }
+
+        .cutting-zone {
+          grid-template-columns: 1fr;
+        }
+
+        .shelf {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .history-list {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 720px) {
+        body {
+          padding: 16px;
+        }
+
+        .topbar {
+          grid-template-columns: 1fr;
+          justify-items: center;
+          text-align: center;
+        }
+
+        .title {
+          font-size: 22px;
+        }
+
+        .history-list {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar stagger" style="--delay: 0.05s">
+        <div class="chip">钱包：<span id="wallet">320</span> 币</div>
+        <div class="title-block">
+          <div class="title"><span class="gem"></span>赌石店</div>
+          <div class="subtitle">第3关 · 开窗 / 全切</div>
+        </div>
+        <div class="chip">热度 <span id="heat">高</span></div>
+      </header>
+
+      <section class="stage stagger" style="--delay: 0.12s">
+        <div class="stage-shadow"></div>
+        <div class="stage-inner">
+          <div class="stage-head">
+            <div class="shop-sign">缅甸玉石铺</div>
+            <div class="head-actions">
+              <button class="btn secondary" id="helpBtn">规则</button>
+              <button class="btn" id="backBtn">返回摊位</button>
+            </div>
+          </div>
+
+          <div class="help-pop" id="helpPop">
+            <div>选石 → 点石开窗 → 拖线全切/放弃</div>
+            <div>开窗仅参考 · 费用不退</div>
+          </div>
+
+          <div class="market-hint">
+            <div class="hint-chip">传闻 <span id="rumorText">绿皮↑</span></div>
+            <div class="hint-chip">逆转 <span>1%</span></div>
+          </div>
+
+          <div class="arena">
+            <div>
+              <div class="shelf" id="stoneShelf"></div>
+
+              <div class="cutting-zone">
+                <div class="stone-stage" id="stoneStage">
+                  <div class="fx-layer">
+                    <div class="fx-slice"></div>
+                    <div class="fx-flash"></div>
+                    <div class="fx-veil"></div>
+                    <div class="fx-sweep"></div>
+                    <div class="fx-spot"></div>
+                    <div class="fx-dust"></div>
+                    <div class="fx-glow"></div>
+                    <div class="fx-ring"></div>
+                    <div class="fx-aura"></div>
+                    <div class="fx-sparks">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+                  </div>
+                  <div class="cut-line" id="cutLine"></div>
+                  <div class="cut-glow" id="cutGlow"></div>
+                  <div class="stone-split" id="stoneSplit">
+                    <div class="stone-half left" id="stoneHalfLeft"></div>
+                    <div class="stone-half right" id="stoneHalfRight"></div>
+                  </div>
+                  <div class="gem-core" id="gemCore"></div>
+                  <div class="stone-display" id="stoneDisplay">
+                    <div class="stone-window" id="stoneWindow"></div>
+                    <div class="stone-crack"></div>
+                  </div>
+                  <div class="stone-hit" id="stoneHit"></div>
+                  <div class="result-stamp" id="resultStamp">爆绿</div>
+                </div>
+                <div class="result-panel">
+                  <div class="result-block">
+                    <div class="result-label">开窗</div>
+                    <div class="result-value" id="previewText">未开窗</div>
+                  </div>
+                  <div class="result-block">
+                    <div class="result-label">全切</div>
+                    <div class="result-value" id="finalText">等待决策</div>
+                  </div>
+                  <div class="status" id="statusText">先选原石</div>
+                  <div class="step-indicator">
+                    <div class="step-dot active" id="stepOne">1</div>
+                    <div class="step-line"></div>
+                    <div class="step-dot" id="stepTwo">2</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <aside class="control-panel">
+              <div class="panel-title">当前原石</div>
+              <div class="detail-grid">
+                <div class="detail-item">档次<span id="detailGrade">-</span></div>
+                <div class="detail-item">大小<span id="detailSize">-</span></div>
+                <div class="detail-item">皮色<span id="detailSkin">-</span></div>
+                <div class="detail-item">裂纹<span id="detailCrack">-</span></div>
+                <div class="detail-item">纹理<span id="detailTexture">-</span></div>
+                <div class="detail-item">光泽<span id="detailGloss">-</span></div>
+              </div>
+
+              <div class="cost-grid">
+                <div class="cost-item">开窗费<span id="openCost">-</span></div>
+                <div class="cost-item">全切费<span id="cutCost">-</span></div>
+              </div>
+
+              <div class="actions">
+                <button class="btn" id="openBtn">开窗</button>
+                <button class="btn warning" id="cutBtn">全切</button>
+                <button class="btn ghost" id="abandonBtn">放弃</button>
+                <button class="btn secondary" id="adviceBtn">点评10</button>
+              </div>
+
+              <div class="advisor" id="advisorText">师傅：稳一点。</div>
+
+              <div class="meter">
+                <div class="meter-row">
+                  好料
+                  <div class="bar good"><span id="goodBar"></span></div>
+                  <span id="goodPct">0%</span>
+                </div>
+                <div class="meter-row">
+                  中料
+                  <div class="bar mid"><span id="midBar"></span></div>
+                  <span id="midPct">0%</span>
+                </div>
+                <div class="meter-row">
+                  垃圾
+                  <div class="bar bad"><span id="badBar"></span></div>
+                  <span id="badPct">0%</span>
+                </div>
+              </div>
+            </aside>
+          </div>
+
+          <div class="history">
+            <div class="history-title">最近记录</div>
+            <div class="history-list" id="historyList">
+              <div class="history-item placeholder">暂无记录</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const stones = [
+        {
+          name: "青皮小料",
+          grade: "小料",
+          size: "手掌大",
+          openCost: 5,
+          cutCost: 20,
+          range: [0, 50],
+          hints: {
+            skin: "绿皮",
+            crack: "轻微裂纹",
+            texture: "细腻纹理",
+            gloss: "油润光泽"
+          },
+          prob: { good: 0.25, mid: 0.45, bad: 0.3 },
+          previewTrust: 0.7
+        },
+        {
+          name: "黄皮中料",
+          grade: "中料",
+          size: "半臂长",
+          openCost: 15,
+          cutCost: 50,
+          range: [0, 150],
+          hints: {
+            skin: "黄皮",
+            crack: "细裂",
+            texture: "颗粒感",
+            gloss: "微油"
+          },
+          prob: { good: 0.28, mid: 0.42, bad: 0.3 },
+          previewTrust: 0.62
+        },
+        {
+          name: "灰皮大料",
+          grade: "大料",
+          size: "双手抱",
+          openCost: 30,
+          cutCost: 100,
+          range: [0, 500],
+          hints: {
+            skin: "灰皮",
+            crack: "明显裂纹",
+            texture: "粗纹",
+            gloss: "干涩"
+          },
+          prob: { good: 0.24, mid: 0.36, bad: 0.4 },
+          previewTrust: 0.55
+        },
+        {
+          name: "赌石王料",
+          grade: "赌料",
+          size: "巨块",
+          openCost: 50,
+          cutCost: 200,
+          range: [0, 1000],
+          hints: {
+            skin: "黑皮",
+            crack: "暗裂",
+            texture: "细纹",
+            gloss: "偏润"
+          },
+          prob: { good: 0.22, mid: 0.33, bad: 0.45 },
+          previewTrust: 0.5
+        }
+      ];
+
+      const skinPool = ["绿皮", "黄皮", "灰皮", "黑皮", "青皮", "白皮"];
+      const texturePool = ["细腻纹理", "颗粒感", "粗纹", "细纹", "油润纹"];
+      const crackPool = ["轻微裂纹", "细裂", "暗裂", "明显裂纹", "无裂"];
+      const glossPool = ["油润光泽", "微油", "干涩", "偏润", "雾面"];
+      const skinPalettes = {
+        绿皮: {
+          base: "#7fb28f",
+          dark: "#3f6a4f",
+          fx: "140, 230, 190",
+          fxSoft: "80, 170, 140",
+          fxDeep: "40, 110, 90"
+        },
+        黄皮: {
+          base: "#b79c6a",
+          dark: "#6f5b3a",
+          fx: "255, 220, 150",
+          fxSoft: "200, 165, 110",
+          fxDeep: "140, 110, 70"
+        },
+        灰皮: {
+          base: "#9a9488",
+          dark: "#5f5950",
+          fx: "210, 220, 225",
+          fxSoft: "150, 160, 165",
+          fxDeep: "100, 110, 115"
+        },
+        黑皮: {
+          base: "#5a5853",
+          dark: "#2f2e2a",
+          fx: "170, 210, 200",
+          fxSoft: "90, 120, 115",
+          fxDeep: "50, 70, 75"
+        },
+        青皮: {
+          base: "#6f8f92",
+          dark: "#3b595b",
+          fx: "160, 220, 235",
+          fxSoft: "90, 150, 175",
+          fxDeep: "50, 90, 110"
+        },
+        白皮: {
+          base: "#c7c2b7",
+          dark: "#8f8a7f",
+          fx: "230, 245, 250",
+          fxSoft: "180, 200, 210",
+          fxDeep: "120, 140, 150"
+        }
+      };
+      const qualityGlow = {
+        good: { fx: "140, 240, 200", fxSoft: "90, 200, 160", fxDeep: "40, 120, 90" },
+        mid: { fx: "185, 225, 205", fxSoft: "130, 190, 170", fxDeep: "90, 140, 120" },
+        bad: { fx: "200, 200, 200", fxSoft: "150, 150, 150", fxDeep: "90, 90, 90" }
+      };
+      const windowShapes = [
+        "12% 8%, 78% 2%, 96% 28%, 92% 70%, 56% 92%, 14% 86%, 2% 52%",
+        "6% 24%, 36% 6%, 80% 10%, 100% 44%, 72% 94%, 28% 86%, 0 58%",
+        "10% 10%, 58% 0, 92% 18%, 100% 54%, 76% 96%, 26% 90%, 0 50%",
+        "18% 6%, 70% 2%, 96% 30%, 88% 78%, 52% 96%, 18% 86%, 0 48%",
+        "8% 30%, 34% 8%, 82% 6%, 98% 36%, 90% 84%, 48% 98%, 6% 70%",
+        "10% 20%, 40% 4%, 76% 8%, 98% 32%, 92% 72%, 54% 96%, 18% 88%, 2% 52%",
+        "14% 10%, 52% 0, 88% 14%, 100% 42%, 86% 90%, 44% 98%, 8% 74%, 0 38%",
+        "6% 18%, 32% 6%, 70% 2%, 96% 22%, 100% 58%, 74% 94%, 28% 92%, 0 64%",
+        "12% 6%, 60% 4%, 90% 18%, 98% 50%, 82% 90%, 36% 98%, 6% 76%, 2% 38%",
+        "18% 14%, 46% 2%, 84% 10%, 100% 36%, 90% 80%, 58% 96%, 16% 90%, 2% 56%"
+      ];
+
+      const stoneShapes = [
+        [
+          { x: 0.08, y: 0.26 },
+          { x: 0.2, y: 0.1 },
+          { x: 0.46, y: 0.04 },
+          { x: 0.78, y: 0.12 },
+          { x: 0.94, y: 0.36 },
+          { x: 0.9, y: 0.74 },
+          { x: 0.62, y: 0.94 },
+          { x: 0.26, y: 0.9 },
+          { x: 0.06, y: 0.6 }
+        ],
+        [
+          { x: 0.12, y: 0.18 },
+          { x: 0.36, y: 0.05 },
+          { x: 0.7, y: 0.08 },
+          { x: 0.94, y: 0.3 },
+          { x: 0.96, y: 0.62 },
+          { x: 0.78, y: 0.9 },
+          { x: 0.44, y: 0.96 },
+          { x: 0.16, y: 0.82 },
+          { x: 0.04, y: 0.48 }
+        ],
+        [
+          { x: 0.1, y: 0.22 },
+          { x: 0.3, y: 0.06 },
+          { x: 0.6, y: 0.04 },
+          { x: 0.86, y: 0.16 },
+          { x: 0.98, y: 0.44 },
+          { x: 0.88, y: 0.82 },
+          { x: 0.58, y: 0.96 },
+          { x: 0.22, y: 0.88 },
+          { x: 0.04, y: 0.56 }
+        ],
+        [
+          { x: 0.14, y: 0.14 },
+          { x: 0.44, y: 0.02 },
+          { x: 0.78, y: 0.08 },
+          { x: 0.98, y: 0.34 },
+          { x: 0.9, y: 0.76 },
+          { x: 0.62, y: 0.98 },
+          { x: 0.24, y: 0.88 },
+          { x: 0.04, y: 0.5 }
+        ],
+        [
+          { x: 0.06, y: 0.32 },
+          { x: 0.26, y: 0.08 },
+          { x: 0.56, y: 0.02 },
+          { x: 0.9, y: 0.18 },
+          { x: 0.98, y: 0.5 },
+          { x: 0.84, y: 0.86 },
+          { x: 0.48, y: 0.98 },
+          { x: 0.16, y: 0.8 }
+        ]
+      ];
+
+      const gemShapes = [
+        "8% 20%, 26% 6%, 58% 0, 88% 18%, 100% 46%, 86% 84%, 50% 100%, 14% 82%",
+        "6% 30%, 30% 8%, 64% 2%, 92% 16%, 98% 54%, 72% 96%, 28% 92%, 0 60%",
+        "12% 12%, 38% 2%, 70% 6%, 96% 28%, 94% 70%, 60% 98%, 24% 90%, 2% 54%",
+        "18% 8%, 52% 0, 82% 12%, 98% 40%, 88% 86%, 48% 100%, 16% 84%, 4% 46%",
+        "10% 24%, 26% 6%, 56% 2%, 90% 18%, 100% 52%, 76% 94%, 34% 98%, 4% 66%",
+        "14% 16%, 42% 2%, 74% 4%, 100% 28%, 96% 68%, 66% 98%, 30% 92%, 2% 58%"
+      ];
+
+      stones.forEach((stone) => {
+        stone.shape = stoneShapes[Math.floor(Math.random() * stoneShapes.length)];
+      });
+
+      const glossary = {
+        满绿: "内部翠色浓且均匀，属于高品质表现",
+        飘花: "内部有花状纹理，品质中等偏好",
+        裂: "内部裂痕明显，价值大幅下降",
+        爆绿: "切开后出现高品质翠色",
+        稳料: "切开后品质中等，收益一般",
+        灰石: "切开后无料或废料",
+        极品: "高品质翡翠成品",
+        中料: "中等品质翡翠"
+      };
+
+      const rumors = [
+        "绿皮↑ 但不保真。",
+        "黄皮飘花偏多。",
+        "裂多未必废。",
+        "黑皮少爆但值高。"
+      ];
+
+      const walletEl = document.getElementById("wallet");
+      const shelfEl = document.getElementById("stoneShelf");
+      const previewText = document.getElementById("previewText");
+      const finalText = document.getElementById("finalText");
+      const statusText = document.getElementById("statusText");
+      const stoneStage = document.getElementById("stoneStage");
+      const stoneDisplay = document.getElementById("stoneDisplay");
+      const stoneHit = document.getElementById("stoneHit");
+      const stoneSplit = document.getElementById("stoneSplit");
+      const stoneHalfLeft = document.getElementById("stoneHalfLeft");
+      const stoneHalfRight = document.getElementById("stoneHalfRight");
+      const cutGlow = document.getElementById("cutGlow");
+      const gemCore = document.getElementById("gemCore");
+      const stoneWindow = document.getElementById("stoneWindow");
+      const resultStamp = document.getElementById("resultStamp");
+      const stepOne = document.getElementById("stepOne");
+      const stepTwo = document.getElementById("stepTwo");
+      const rumorText = document.getElementById("rumorText");
+      const historyList = document.getElementById("historyList");
+      const adviceText = document.getElementById("advisorText");
+      const helpBtn = document.getElementById("helpBtn");
+      const helpPop = document.getElementById("helpPop");
+
+      const detailFields = {
+        grade: document.getElementById("detailGrade"),
+        size: document.getElementById("detailSize"),
+        skin: document.getElementById("detailSkin"),
+        crack: document.getElementById("detailCrack"),
+        texture: document.getElementById("detailTexture"),
+        gloss: document.getElementById("detailGloss")
+      };
+
+      const openCostEl = document.getElementById("openCost");
+      const cutCostEl = document.getElementById("cutCost");
+      const openBtn = document.getElementById("openBtn");
+      const cutBtn = document.getElementById("cutBtn");
+      const abandonBtn = document.getElementById("abandonBtn");
+      const adviceBtn = document.getElementById("adviceBtn");
+      const goodBar = document.getElementById("goodBar");
+      const midBar = document.getElementById("midBar");
+      const badBar = document.getElementById("badBar");
+      const goodPct = document.getElementById("goodPct");
+      const midPct = document.getElementById("midPct");
+      const badPct = document.getElementById("badPct");
+
+      const state = {
+        wallet: 320,
+        selected: 0,
+        opened: false,
+        cut: false,
+        result: null,
+        preview: null,
+        mode: "idle",
+        windowShape: windowShapes[0],
+        windowRot: "0deg",
+        windowPos: null,
+        stoneShape: stoneShapes[0],
+        cutLine: null
+      };
+
+      function renderShelf() {
+        shelfEl.innerHTML = "";
+        stones.forEach((stone, index) => {
+          const card = document.createElement("div");
+          card.className = `stone-card ${index === state.selected ? "active" : ""}`;
+          card.dataset.index = String(index);
+          card.innerHTML = `
+            <div class="stone-header">
+              <span>${stone.name}</span>
+              <span class="stone-grade">${stone.grade}</span>
+            </div>
+            <div class="stone-thumb thumb-${index}"></div>
+            <div class="stone-tags">
+              <span class="tag">${stone.hints.skin}</span>
+              <span class="tag">${stone.hints.texture}</span>
+            </div>
+            <div class="stone-cost">
+              <span>开 ${stone.openCost}</span>
+              <span>切 ${stone.cutCost}</span>
+            </div>
+          `;
+          const palette = getSkinPalette(stone.hints.skin);
+          const thumb = card.querySelector(".stone-thumb");
+          if (thumb) {
+            thumb.style.background = `linear-gradient(145deg, ${palette.dark}, ${palette.base})`;
+          }
+          card.addEventListener("click", () => selectStone(index));
+          shelfEl.appendChild(card);
+        });
+      }
+
+      function updateDetails() {
+        const stone = stones[state.selected];
+        detailFields.grade.textContent = stone.grade;
+        detailFields.size.textContent = stone.size;
+        detailFields.skin.textContent = stone.hints.skin;
+        detailFields.crack.textContent = stone.hints.crack;
+        detailFields.texture.textContent = stone.hints.texture;
+        detailFields.gloss.textContent = stone.hints.gloss;
+        openCostEl.textContent = `${stone.openCost} 币`;
+        cutCostEl.textContent = `${stone.cutCost} 币`;
+        const good = Math.round(stone.prob.good * 100);
+        const mid = Math.round(stone.prob.mid * 100);
+        const bad = 100 - good - mid;
+        goodBar.style.width = `${good}%`;
+        midBar.style.width = `${mid}%`;
+        badBar.style.width = `${bad}%`;
+        goodPct.textContent = `${good}%`;
+        midPct.textContent = `${mid}%`;
+        badPct.textContent = `${bad}%`;
+      }
+
+      function updateStoneStage() {
+        setStoneFace();
+        setStoneShape();
+        stoneDisplay.style.setProperty("--cut-local-x", "60%");
+        stoneDisplay.style.setProperty("--cut-local-y", "40%");
+        stoneDisplay.style.setProperty("--cut-local-rot", "12deg");
+        stoneWindow.className = "stone-window";
+        stoneWindow.style.left = "50%";
+        stoneWindow.style.top = "50%";
+        stoneWindow.style.setProperty("--window-shape", state.windowShape);
+        stoneWindow.style.setProperty("--window-rot", "0deg");
+        resultStamp.classList.remove("show");
+        resultStamp.style.borderColor = "";
+        resultStamp.style.color = "";
+        stoneStage.classList.remove(
+          "open-anim",
+          "cut-anim",
+          "abandon-anim",
+          "result-good",
+          "result-mid",
+          "result-bad",
+          "preview-good",
+          "preview-mid",
+          "preview-bad",
+          "mode-open",
+          "mode-cut",
+          "drawing",
+          "split-show",
+          "gem-good",
+          "gem-mid",
+          "gem-bad"
+        );
+        stoneStage.style.setProperty("--fx-x", "50%");
+        stoneStage.style.setProperty("--fx-y", "50%");
+        stoneStage.style.setProperty("--fx-rot", "-12deg");
+        stoneStage.style.setProperty("--cut-x", "50%");
+        stoneStage.style.setProperty("--cut-y", "50%");
+        stoneStage.style.setProperty("--cut-rot", "-12deg");
+        stoneStage.style.setProperty("--cut-len", "220px");
+        stoneStage.style.setProperty("--gem-size", "52px");
+        stoneStage.style.setProperty("--gem-glow", "18px");
+        stoneStage.style.setProperty("--gem-rot", "0deg");
+        stoneStage.style.setProperty("--gem-shape", gemShapes[0]);
+        stoneStage.style.setProperty("--gem-pop", "1");
+        stoneStage.style.setProperty("--gem-bright", "1");
+        stoneStage.style.setProperty("--gem-sat", "1");
+        stoneStage.style.setProperty("--split-left-x", "-40px");
+        stoneStage.style.setProperty("--split-left-y", "0px");
+        stoneStage.style.setProperty("--split-right-x", "40px");
+        stoneStage.style.setProperty("--split-right-y", "0px");
+        state.mode = "idle";
+        state.cutLine = null;
+        requestAnimationFrame(syncSplitSize);
+      }
+
+      function updateActionState() {
+        const locked = state.cut;
+        const busy = state.mode !== "idle";
+        openBtn.disabled = locked || state.opened || busy;
+        cutBtn.disabled = locked || !state.opened || busy;
+        abandonBtn.disabled = locked || !state.opened || busy;
+        adviceBtn.disabled = busy;
+      }
+
+      function triggerFx(name) {
+        const classes = ["open-anim", "cut-anim", "abandon-anim"];
+        classes.forEach((cls) => stoneStage.classList.remove(cls));
+        const next = `${name}-anim`;
+        requestAnimationFrame(() => {
+          stoneStage.classList.add(next);
+        });
+        setTimeout(() => {
+          stoneStage.classList.remove(next);
+        }, 1200);
+      }
+
+      function applyResultFx(quality) {
+        stoneStage.classList.remove(
+          "result-good",
+          "result-mid",
+          "result-bad",
+          "preview-good",
+          "preview-mid",
+          "preview-bad"
+        );
+        if (quality === "good") {
+          stoneStage.classList.add("result-good");
+        } else if (quality === "mid") {
+          stoneStage.classList.add("result-mid");
+        } else if (quality === "bad") {
+          stoneStage.classList.add("result-bad");
+        }
+      }
+
+      function applyPreviewFx(quality) {
+        stoneStage.classList.remove("preview-good", "preview-mid", "preview-bad");
+        if (quality === "good") {
+          stoneStage.classList.add("preview-good");
+        } else if (quality === "mid") {
+          stoneStage.classList.add("preview-mid");
+        } else if (quality === "bad") {
+          stoneStage.classList.add("preview-bad");
+        }
+      }
+
+      function parseRgbString(value) {
+        return value.split(",").map((part) => parseInt(part.trim(), 10));
+      }
+
+      function mixRgb(base, top, ratio) {
+        return base.map((value, index) => Math.round(value * ratio + top[index] * (1 - ratio)));
+      }
+
+      function rgbToString(values) {
+        return `${values[0]}, ${values[1]}, ${values[2]}`;
+      }
+
+      function setGlowByQuality(quality) {
+        const glow = qualityGlow[quality];
+        if (!glow) return;
+        const stone = stones[state.selected];
+        const palette = getSkinPalette(stone.hints.skin);
+        const mixRatio = 0.55;
+        const fx = rgbToString(
+          mixRgb(parseRgbString(glow.fx), parseRgbString(palette.fx), mixRatio)
+        );
+        const fxSoft = rgbToString(
+          mixRgb(parseRgbString(glow.fxSoft), parseRgbString(palette.fxSoft), mixRatio)
+        );
+        const fxDeep = rgbToString(
+          mixRgb(parseRgbString(glow.fxDeep), parseRgbString(palette.fxDeep), mixRatio)
+        );
+        stoneStage.style.setProperty("--fx-rgb", fx);
+        stoneStage.style.setProperty("--fx-soft-rgb", fxSoft);
+        stoneStage.style.setProperty("--fx-deep-rgb", fxDeep);
+        stoneStage.style.setProperty("--window-glow-rgb", fx);
+      }
+
+      function wrapTerm(term) {
+        const tip = glossary[term];
+        if (!tip) return term;
+        return `<span class="term-tip" data-tip="${tip}">${term}*</span>`;
+      }
+
+      function setTermText(element, term) {
+        element.innerHTML = wrapTerm(term);
+      }
+
+      function stampTextFor(quality) {
+        if (quality === "good") return "爆绿";
+        if (quality === "mid") return "稳料";
+        return "灰石";
+      }
+
+      function setFinalText(quality, reward, miracle) {
+        if (quality === "abandon") {
+          finalText.textContent = "已放弃";
+          return;
+        }
+        if (quality === "good") {
+          const head = wrapTerm("极品");
+          finalText.innerHTML = `${miracle ? "逆转！" : ""}${head} +${reward}币`;
+          return;
+        }
+        if (quality === "mid") {
+          finalText.innerHTML = `${wrapTerm("中料")} +${reward}币`;
+          return;
+        }
+        finalText.textContent = `失败 +${reward}币`;
+      }
+
+      function setStoneFace() {
+        const stone = stones[state.selected];
+        const palette = getSkinPalette(stone.hints.skin);
+        const face = `linear-gradient(150deg, ${palette.base}, ${palette.dark})`;
+        stoneDisplay.style.background = face;
+        stoneHalfLeft.style.background = face;
+        stoneHalfRight.style.background = face;
+        stoneStage.style.setProperty("--fx-rgb", palette.fx);
+        stoneStage.style.setProperty("--fx-soft-rgb", palette.fxSoft);
+        stoneStage.style.setProperty("--fx-deep-rgb", palette.fxDeep);
+        stoneStage.style.setProperty("--window-glow-rgb", palette.fx);
+      }
+
+      function setStoneShape() {
+        const shape = state.stoneShape || stoneShapes[0];
+        const css = shape
+          .map((p) => `${(p.x * 100).toFixed(1)}% ${(p.y * 100).toFixed(1)}%`)
+          .join(", ");
+        const poly = `polygon(${css})`;
+        stoneDisplay.style.clipPath = poly;
+        stoneDisplay.style.webkitClipPath = poly;
+        stoneHalfLeft.style.clipPath = poly;
+        stoneHalfLeft.style.webkitClipPath = poly;
+        stoneHalfRight.style.clipPath = poly;
+        stoneHalfRight.style.webkitClipPath = poly;
+      }
+
+      function syncSplitSize() {
+        const rect = stoneDisplay.getBoundingClientRect();
+        stoneSplit.style.width = `${rect.width}px`;
+        stoneSplit.style.height = `${rect.height}px`;
+      }
+
+      function lineIntersection(a, b, x0, y0, nx, ny) {
+        const abx = b.x - a.x;
+        const aby = b.y - a.y;
+        const denom = abx * nx + aby * ny;
+        if (Math.abs(denom) < 0.0001) {
+          return { x: b.x, y: b.y };
+        }
+        const t = ((x0 - a.x) * nx + (y0 - a.y) * ny) / denom;
+        return { x: a.x + t * abx, y: a.y + t * aby };
+      }
+
+      function clipPolygon(points, x0, y0, nx, ny) {
+        const output = [];
+        for (let i = 0; i < points.length; i++) {
+          const a = points[i];
+          const b = points[(i + 1) % points.length];
+          const da = (a.x - x0) * nx + (a.y - y0) * ny;
+          const db = (b.x - x0) * nx + (b.y - y0) * ny;
+          if (da >= 0 && db >= 0) {
+            output.push(b);
+          } else if (da >= 0 && db < 0) {
+            output.push(lineIntersection(a, b, x0, y0, nx, ny));
+          } else if (da < 0 && db >= 0) {
+            output.push(lineIntersection(a, b, x0, y0, nx, ny));
+            output.push(b);
+          }
+        }
+        return output;
+      }
+
+      function polygonToCss(points, width, height) {
+        if (!points.length) return "polygon(0 0, 100% 0, 100% 100%, 0 100%)";
+        const items = points.map((p) => {
+          const x = Math.max(0, Math.min(100, (p.x / width) * 100));
+          const y = Math.max(0, Math.min(100, (p.y / height) * 100));
+          return `${x.toFixed(1)}% ${y.toFixed(1)}%`;
+        });
+        return `polygon(${items.join(", ")})`;
+      }
+
+      function getStoneShapePoints(width, height) {
+        const shape = state.stoneShape || stoneShapes[0];
+        return shape.map((p) => ({ x: p.x * width, y: p.y * height }));
+      }
+
+      function polygonCentroid(points) {
+        if (!points.length) return { x: 0, y: 0 };
+        let x = 0;
+        let y = 0;
+        points.forEach((p) => {
+          x += p.x;
+          y += p.y;
+        });
+        return { x: x / points.length, y: y / points.length };
+      }
+
+      function applySplitClip() {
+        if (!state.cutLine) return;
+        const stageRect = stoneStage.getBoundingClientRect();
+        const displayRect = stoneDisplay.getBoundingClientRect();
+        const width = displayRect.width;
+        const height = displayRect.height;
+        syncSplitSize();
+        const localX = state.cutLine.midX - (displayRect.left - stageRect.left);
+        const localY = state.cutLine.midY - (displayRect.top - stageRect.top);
+        const angleRad = (state.cutLine.angle * Math.PI) / 180;
+        const nx = -Math.sin(angleRad);
+        const ny = Math.cos(angleRad);
+        const baseShape = getStoneShapePoints(width, height);
+        const leftPoly = clipPolygon(baseShape, localX, localY, nx, ny);
+        const rightPoly = clipPolygon(baseShape, localX, localY, -nx, -ny);
+        const leftClip = polygonToCss(leftPoly, width, height);
+        const rightClip = polygonToCss(rightPoly, width, height);
+        stoneHalfLeft.style.clipPath = leftClip;
+        stoneHalfLeft.style.webkitClipPath = leftClip;
+        stoneHalfRight.style.clipPath = rightClip;
+        stoneHalfRight.style.webkitClipPath = rightClip;
+        const leftCenter = polygonCentroid(leftPoly);
+        const rightCenter = polygonCentroid(rightPoly);
+        let leftVec = { x: leftCenter.x - localX, y: leftCenter.y - localY };
+        let rightVec = { x: rightCenter.x - localX, y: rightCenter.y - localY };
+        const leftLen = Math.hypot(leftVec.x, leftVec.y) || 1;
+        const rightLen = Math.hypot(rightVec.x, rightVec.y) || 1;
+        leftVec = { x: leftVec.x / leftLen, y: leftVec.y / leftLen };
+        rightVec = { x: rightVec.x / rightLen, y: rightVec.y / rightLen };
+        const dot = leftVec.x * rightVec.x + leftVec.y * rightVec.y;
+        if (dot > 0.2) {
+          rightVec = { x: -leftVec.x, y: -leftVec.y };
+        }
+        const offset = Math.max(42, Math.min(96, width * 0.32));
+        stoneStage.style.setProperty("--split-left-x", `${(leftVec.x * offset).toFixed(1)}px`);
+        stoneStage.style.setProperty("--split-left-y", `${(leftVec.y * offset).toFixed(1)}px`);
+        stoneStage.style.setProperty("--split-right-x", `${(rightVec.x * offset).toFixed(1)}px`);
+        stoneStage.style.setProperty("--split-right-y", `${(rightVec.y * offset).toFixed(1)}px`);
+      }
+
+      function applyGemStyle(quality) {
+        const shape = pick(gemShapes);
+        let sizeRange = [54, 76];
+        if (quality === "good") sizeRange = [68, 90];
+        else if (quality === "mid") sizeRange = [58, 78];
+        const size = Math.round(sizeRange[0] + Math.random() * (sizeRange[1] - sizeRange[0]));
+        const glowScale = quality === "good" ? 0.46 : quality === "mid" ? 0.32 : 0.2;
+        const glow = Math.round(size * glowScale);
+        const pop = quality === "good" ? 1.03 : quality === "mid" ? 1 : 0.96;
+        const bright = quality === "good" ? 1.08 : quality === "mid" ? 0.95 : 0.82;
+        const sat = quality === "good" ? 1.1 : quality === "mid" ? 0.95 : 0.75;
+        const rot = Math.round(Math.random() * 36 - 18);
+        stoneStage.style.setProperty("--gem-size", `${size}px`);
+        stoneStage.style.setProperty("--gem-glow", `${glow}px`);
+        stoneStage.style.setProperty("--gem-rot", `${rot}deg`);
+        stoneStage.style.setProperty("--gem-shape", shape);
+        stoneStage.style.setProperty("--gem-pop", `${pop}`);
+        stoneStage.style.setProperty("--gem-bright", `${bright}`);
+        stoneStage.style.setProperty("--gem-sat", `${sat}`);
+      }
+
+      function showSplit(quality) {
+        applyGemStyle(quality);
+        applySplitClip();
+        stoneStage.classList.remove("split-show", "gem-good", "gem-mid", "gem-bad");
+        if (quality === "good") {
+          stoneStage.classList.add("gem-good");
+        } else if (quality === "mid") {
+          stoneStage.classList.add("gem-mid");
+        } else {
+          stoneStage.classList.add("gem-bad");
+        }
+        requestAnimationFrame(() => {
+          stoneStage.classList.add("split-show");
+        });
+      }
+
+      function getSkinPalette(skin) {
+        return skinPalettes[skin] || skinPalettes["灰皮"];
+      }
+
+      function getStoneColor(index) {
+        const stone = stones[index];
+        return getSkinPalette(stone.hints.skin).base;
+      }
+
+      function getStoneDark(index) {
+        const stone = stones[index];
+        return getSkinPalette(stone.hints.skin).dark;
+      }
+
+      function pick(pool) {
+        return pool[Math.floor(Math.random() * pool.length)];
+      }
+
+      function refreshStone(index) {
+        const stone = stones[index];
+        const skin = pick(skinPool);
+        stone.hints = {
+          skin,
+          crack: pick(crackPool),
+          texture: pick(texturePool),
+          gloss: pick(glossPool)
+        };
+        stone.name = `${skin}${stone.grade}`;
+        stone.previewTrust = Math.max(
+          0.45,
+          Math.min(0.75, stone.previewTrust + (Math.random() * 0.1 - 0.05))
+        );
+        stone.shape = stoneShapes[Math.floor(Math.random() * stoneShapes.length)];
+      }
+
+      function selectStone(index) {
+        state.selected = index;
+        state.opened = false;
+        state.cut = false;
+        state.result = null;
+        state.preview = null;
+        state.windowPos = null;
+        state.stoneShape = stones[index].shape || stoneShapes[0];
+        previewText.textContent = "未开窗";
+        finalText.textContent = "等待决策";
+        statusText.textContent = "原石已换";
+        stepOne.classList.add("active");
+        stepTwo.classList.remove("active");
+        updateDetails();
+        updateStoneStage();
+        renderShelf();
+        updateActionState();
+      }
+
+      function spend(cost) {
+        if (state.wallet < cost) {
+          statusText.textContent = "余额不足";
+          return false;
+        }
+        state.wallet -= cost;
+        walletEl.textContent = String(state.wallet);
+        return true;
+      }
+
+      function rollQuality(stone) {
+        const rand = Math.random();
+        if (rand < stone.prob.good) return "good";
+        if (rand < stone.prob.good + stone.prob.mid) return "mid";
+        return "bad";
+      }
+
+      function rollPreview(quality, stone) {
+        const misleading = Math.random() > stone.previewTrust;
+        if (misleading) {
+          const options = ["good", "mid", "bad"].filter((q) => q !== quality);
+          return options[Math.floor(Math.random() * options.length)];
+        }
+        return quality;
+      }
+
+      function previewTextFor(quality) {
+        if (quality === "good") return "满绿";
+        if (quality === "mid") return "飘花";
+        return "裂";
+      }
+
+      function finalTextFor(quality, reward, miracle) {
+        if (quality === "abandon") return "已放弃";
+        if (quality === "good") {
+          return `${miracle ? "逆转！" : ""}极品 +${reward}币`;
+        }
+        if (quality === "mid") return `中料 +${reward}币`;
+        return `失败 +${reward}币`;
+      }
+
+      function calcReward(stone, quality) {
+        const [min, max] = stone.range;
+        let low = min;
+        let high = max;
+        if (quality === "good") {
+          low = min + (max - min) * 0.6;
+        } else if (quality === "mid") {
+          low = min + (max - min) * 0.3;
+          high = min + (max - min) * 0.6;
+        } else {
+          high = min + (max - min) * 0.2;
+        }
+        return Math.round(low + Math.random() * (high - low));
+      }
+
+      function setMode(mode) {
+        state.mode = mode;
+        stoneStage.classList.toggle("mode-open", mode === "placeWindow");
+        stoneStage.classList.toggle("mode-cut", mode === "drawCut");
+        if (mode !== "placeWindow") {
+          stoneWindow.classList.remove("placing");
+        }
+        updateActionState();
+      }
+
+      function clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+      }
+
+      function getDisplayPoint(event) {
+        const rect = stoneDisplay.getBoundingClientRect();
+        return {
+          x: event.clientX - rect.left,
+          y: event.clientY - rect.top,
+          rect
+        };
+      }
+
+      function getStagePoint(event) {
+        const rect = stoneStage.getBoundingClientRect();
+        return {
+          x: event.clientX - rect.left,
+          y: event.clientY - rect.top,
+          rect
+        };
+      }
+
+      function isInsideDisplay(event) {
+        const rect = stoneDisplay.getBoundingClientRect();
+        return (
+          event.clientX >= rect.left &&
+          event.clientX <= rect.right &&
+          event.clientY >= rect.top &&
+          event.clientY <= rect.bottom
+        );
+      }
+
+      function setFxAnchor(stageX, stageY, rot) {
+        stoneStage.style.setProperty("--fx-x", `${stageX}px`);
+        stoneStage.style.setProperty("--fx-y", `${stageY}px`);
+        if (rot) {
+          stoneStage.style.setProperty("--fx-rot", rot);
+        }
+      }
+
+      function setFxAnchorFromDisplay(x, y, rot) {
+        const stageRect = stoneStage.getBoundingClientRect();
+        const displayRect = stoneDisplay.getBoundingClientRect();
+        const fxX = displayRect.left - stageRect.left + x;
+        const fxY = displayRect.top - stageRect.top + y;
+        setFxAnchor(fxX, fxY, rot);
+      }
+
+      function setCrackAnchorFromStage(stageX, stageY, rot) {
+        const stageRect = stoneStage.getBoundingClientRect();
+        const displayRect = stoneDisplay.getBoundingClientRect();
+        const localX = stageX - (displayRect.left - stageRect.left);
+        const localY = stageY - (displayRect.top - stageRect.top);
+        stoneDisplay.style.setProperty("--cut-local-x", `${localX}px`);
+        stoneDisplay.style.setProperty("--cut-local-y", `${localY}px`);
+        stoneDisplay.style.setProperty("--cut-local-rot", rot);
+      }
+
+      function setWindowPosition(x, y) {
+        const rect = stoneDisplay.getBoundingClientRect();
+        const padding = 26;
+        const nx = clamp(x, padding, rect.width - padding);
+        const ny = clamp(y, padding, rect.height - padding);
+        stoneWindow.style.left = `${nx}px`;
+        stoneWindow.style.top = `${ny}px`;
+        setFxAnchorFromDisplay(nx, ny, state.windowRot);
+        return { x: nx, y: ny, rect };
+      }
+
+      function startOpenPlacement() {
+        if (state.opened || state.cut) {
+          statusText.textContent = "已开窗";
+          return;
+        }
+        state.windowShape = pick(windowShapes);
+        state.windowRot = `${Math.round(Math.random() * 28 - 14)}deg`;
+        stoneWindow.style.setProperty("--window-shape", state.windowShape);
+        stoneWindow.style.setProperty("--window-rot", state.windowRot);
+        stoneWindow.className = "stone-window placing";
+        const rect = stoneDisplay.getBoundingClientRect();
+        setWindowPosition(rect.width / 2, rect.height / 2);
+        statusText.textContent = "点石头选开窗位置";
+        setMode("placeWindow");
+      }
+
+      function confirmOpenAt(point) {
+        const stone = stones[state.selected];
+        if (state.opened) {
+          statusText.textContent = "已开窗";
+          setMode("idle");
+          return;
+        }
+        if (!spend(stone.openCost)) {
+          setMode("idle");
+          stoneWindow.className = "stone-window";
+          return;
+        }
+        if (!state.result) {
+          state.result = { quality: rollQuality(stone) };
+        }
+        state.preview = rollPreview(state.result.quality, stone);
+        setGlowByQuality(state.preview);
+        stoneWindow.className = `stone-window open ${state.preview}`;
+        if (point && point.rect) {
+          state.windowPos = {
+            x: point.x / point.rect.width,
+            y: point.y / point.rect.height
+          };
+        }
+        setTermText(previewText, previewTextFor(state.preview));
+        statusText.textContent = "开窗完成";
+        state.opened = true;
+        stepTwo.classList.add("active");
+        triggerFx("open");
+        applyPreviewFx(state.preview);
+        setMode("idle");
+      }
+
+      let drawStart = null;
+      let drawing = false;
+
+      function startCutDraw() {
+        if (!state.opened) {
+          statusText.textContent = "先开窗";
+          return;
+        }
+        if (state.cut) {
+          statusText.textContent = "已切完";
+          return;
+        }
+        statusText.textContent = "拿笔拖线决定切线";
+        drawStart = null;
+        drawing = false;
+        state.cutLine = null;
+        stoneStage.classList.remove("drawing");
+        setMode("drawCut");
+      }
+
+      function updateCutLine(current) {
+        if (!drawStart) return;
+        const dx = current.x - drawStart.x;
+        const dy = current.y - drawStart.y;
+        const length = Math.hypot(dx, dy);
+        const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+        const midX = (drawStart.x + current.x) / 2;
+        const midY = (drawStart.y + current.y) / 2;
+        const safeLen = Math.max(length, 80);
+        stoneStage.style.setProperty("--cut-x", `${midX}px`);
+        stoneStage.style.setProperty("--cut-y", `${midY}px`);
+        stoneStage.style.setProperty("--cut-rot", `${angle}deg`);
+        stoneStage.style.setProperty("--cut-len", `${safeLen}px`);
+        setFxAnchor(midX, midY, `${angle}deg`);
+        setCrackAnchorFromStage(midX, midY, `${angle}deg`);
+        state.cutLine = {
+          length,
+          angle,
+          midX,
+          midY,
+          startX: drawStart.x,
+          startY: drawStart.y,
+          endX: current.x,
+          endY: current.y
+        };
+      }
+
+      function finishCutDraw(endPoint) {
+        if (!drawStart) return;
+        const dx = endPoint.x - drawStart.x;
+        const dy = endPoint.y - drawStart.y;
+        const length = Math.hypot(dx, dy);
+        if (length < 80) {
+          statusText.textContent = "线太短";
+          drawing = false;
+          drawStart = null;
+          stoneStage.classList.remove("drawing");
+          return;
+        }
+        drawing = false;
+        stoneStage.classList.remove("drawing");
+        setMode("idle");
+        updateCutLine(endPoint);
+        performCut();
+      }
+      function performCut() {
+        const stone = stones[state.selected];
+        if (state.cut) {
+          statusText.textContent = "已切完";
+          return;
+        }
+        if (!spend(stone.cutCost)) return;
+        if (!state.result) {
+          state.result = { quality: rollQuality(stone) };
+        }
+        let quality = state.result.quality;
+        let miracle = false;
+        if (quality === "bad" && Math.random() < 0.01) {
+          quality = "good";
+          miracle = true;
+        }
+        setGlowByQuality(quality);
+        const reward = calcReward(stone, quality);
+        state.wallet += reward;
+        walletEl.textContent = String(state.wallet);
+        setFinalText(quality, reward, miracle);
+        resultStamp.innerHTML = wrapTerm(stampTextFor(quality));
+        resultStamp.style.borderColor = quality === "bad" ? "#f6b1a2" : "#f3cf76";
+        resultStamp.style.color = quality === "bad" ? "#f6b1a2" : "#f3cf76";
+        resultStamp.classList.add("show");
+        statusText.textContent = miracle ? "逆转！" : quality === "bad" ? "失败，石灰" : "稳住";
+        addHistory(stone, quality, reward);
+        state.cut = true;
+        stepTwo.classList.add("active");
+        triggerFx("cut");
+        applyResultFx(quality);
+        setTimeout(() => {
+          showSplit(quality);
+        }, 420);
+        updateActionState();
+      }
+
+      function abandonStone() {
+        const stone = stones[state.selected];
+        setMode("idle");
+        drawing = false;
+        drawStart = null;
+        stoneStage.classList.remove("drawing");
+        if (state.cut) {
+          statusText.textContent = "已结束";
+          return;
+        }
+        if (!state.opened) {
+          statusText.textContent = "先开窗";
+          return;
+        }
+        const abandonedIndex = state.selected;
+        finalText.textContent = "已放弃";
+        statusText.textContent = "已放弃，换下一块";
+        resultStamp.textContent = "放弃";
+        resultStamp.style.borderColor = "#c9b9a5";
+        resultStamp.style.color = "#c9b9a5";
+        resultStamp.classList.add("show");
+        addHistory(stone, "abandon", 0);
+        state.cut = true;
+        stepTwo.classList.add("active");
+        triggerFx("abandon");
+        updateActionState();
+        const nextIndex = getNextStoneIndex();
+        setTimeout(() => {
+          refreshStone(abandonedIndex);
+          selectStone(nextIndex);
+        }, 550);
+      }
+
+      function getNextStoneIndex() {
+        if (stones.length <= 1) return state.selected;
+        let next = Math.floor(Math.random() * stones.length);
+        if (next === state.selected) {
+          next = (next + 1) % stones.length;
+        }
+        return next;
+      }
+
+      function addHistory(stone, quality, reward) {
+        const placeholder = historyList.querySelector(".history-item.placeholder");
+        if (placeholder) {
+          historyList.removeChild(placeholder);
+        }
+        const item = document.createElement("div");
+        item.className = `history-item ${quality}`;
+        item.textContent = `${stone.name} · ${finalTextFor(quality, reward, false)}`;
+        historyList.prepend(item);
+        while (historyList.children.length > 6) {
+          historyList.removeChild(historyList.lastChild);
+        }
+      }
+
+      function askAdvice() {
+        if (!spend(10)) return;
+        const stone = stones[state.selected];
+        const roll = Math.random();
+        let line = "随缘。";
+        if (!state.opened) {
+          const tips = [];
+          if (stone.hints.skin.includes("绿")) tips.push("靠绿皮薄处开窗");
+          if (stone.hints.texture.includes("细")) tips.push("选纹理细腻处开窗");
+          if (stone.hints.crack.includes("裂")) tips.push("避开裂纹一侧");
+          tips.push("偏上1/3处开窗");
+          tips.push("靠光泽亮的一面开窗");
+          line = tips[Math.floor(Math.random() * tips.length)];
+        } else {
+          const pos = state.windowPos || { x: 0.5, y: 0.5 };
+          let dir = "顺窗斜切";
+          if (pos.x < 0.4 && pos.y < 0.4) dir = "从左上往右下切";
+          else if (pos.x > 0.6 && pos.y < 0.4) dir = "从右上往左下切";
+          else if (pos.x < 0.4 && pos.y > 0.6) dir = "从左下往右上切";
+          else if (pos.x > 0.6 && pos.y > 0.6) dir = "从右下往左上切";
+          else if (pos.x < 0.4) dir = "从左侧斜切过窗";
+          else if (pos.x > 0.6) dir = "从右侧斜切过窗";
+          else if (pos.y < 0.4) dir = "从上往下穿窗";
+          else if (pos.y > 0.6) dir = "从下往上穿窗";
+          line = `已开窗，建议${dir}`;
+        }
+        if (roll < stone.prob.good) line = `${line}，看涨。`;
+        else if (roll < stone.prob.good + stone.prob.mid) line = `${line}，小心。`;
+        else line = `${line}，别冲。`;
+        adviceText.textContent = `师傅：${line}`;
+        statusText.textContent = "点评完成";
+      }
+
+      function shuffleRumor() {
+        rumorText.textContent = rumors[Math.floor(Math.random() * rumors.length)];
+      }
+
+      stoneHit.addEventListener("pointerdown", (event) => {
+        if (state.mode === "placeWindow") {
+          if (!isInsideDisplay(event)) return;
+          const point = getDisplayPoint(event);
+          const placed = setWindowPosition(point.x, point.y);
+          confirmOpenAt(placed);
+          return;
+        }
+        if (state.mode === "drawCut") {
+          if (!isInsideDisplay(event)) return;
+          const stagePoint = getStagePoint(event);
+          drawStart = stagePoint;
+          drawing = true;
+          updateCutLine(stagePoint);
+          stoneStage.classList.add("drawing");
+          stoneHit.setPointerCapture(event.pointerId);
+        }
+      });
+
+      stoneHit.addEventListener("pointermove", (event) => {
+        if (state.mode === "placeWindow") {
+          if (!isInsideDisplay(event)) return;
+          const point = getDisplayPoint(event);
+          setWindowPosition(point.x, point.y);
+          return;
+        }
+        if (state.mode === "drawCut" && drawing) {
+          const stagePoint = getStagePoint(event);
+          updateCutLine(stagePoint);
+        }
+      });
+
+      stoneHit.addEventListener("pointerup", (event) => {
+        if (state.mode === "drawCut" && drawing) {
+          const stagePoint = getStagePoint(event);
+          finishCutDraw(stagePoint);
+          stoneHit.releasePointerCapture(event.pointerId);
+        }
+      });
+
+      stoneHit.addEventListener("pointerleave", (event) => {
+        if (state.mode === "drawCut" && drawing) {
+          const stagePoint = getStagePoint(event);
+          finishCutDraw(stagePoint);
+          stoneHit.releasePointerCapture(event.pointerId);
+        }
+      });
+
+      openBtn.addEventListener("click", startOpenPlacement);
+      cutBtn.addEventListener("click", startCutDraw);
+      abandonBtn.addEventListener("click", abandonStone);
+      adviceBtn.addEventListener("click", askAdvice);
+      helpBtn.addEventListener("click", () => {
+        helpPop.classList.toggle("show");
+      });
+
+      renderShelf();
+      updateDetails();
+      updateStoneStage();
+      shuffleRumor();
+      updateActionState();
+
+      window.addEventListener("load", () => {
+        document.body.classList.add("loaded");
+      });
+
+      window.addEventListener("resize", () => {
+        syncSplitSize();
+      });
+    </script>
+  </body>
+</html>

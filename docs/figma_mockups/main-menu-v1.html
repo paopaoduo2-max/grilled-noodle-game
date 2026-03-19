@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>烤冷面大师 - 首页视觉稿</title>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+    <style>
+        :root {
+            --bg-1: #2f1c12;
+            --bg-2: #4a2818;
+            --bg-3: #f2bc79;
+            --panel: rgba(66, 33, 23, 0.82);
+            --panel-soft: rgba(255, 244, 228, 0.92);
+            --line: rgba(255, 228, 190, 0.28);
+            --text-main: #fff3e3;
+            --text-soft: #f5d8ba;
+            --text-dark: #4d2c1a;
+            --accent: #ffb357;
+            --accent-2: #ff7c42;
+            --green: #8ecf8a;
+            --shadow: 0 24px 64px rgba(20, 7, 2, 0.38);
+            --radius-xl: 34px;
+            --radius-lg: 24px;
+            --radius-md: 18px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            background:
+                radial-gradient(circle at 16% 20%, rgba(255, 182, 88, 0.28), transparent 24%),
+                radial-gradient(circle at 82% 18%, rgba(255, 111, 66, 0.24), transparent 26%),
+                linear-gradient(135deg, var(--bg-1), var(--bg-2) 50%, #6f331c 100%);
+            color: var(--text-main);
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            overflow: hidden;
+        }
+
+        .screen {
+            position: relative;
+            width: min(1280px, 100vw);
+            height: min(720px, 100vh);
+            overflow: hidden;
+            background:
+                linear-gradient(180deg, rgba(255, 191, 104, 0.12), transparent 28%),
+                linear-gradient(180deg, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.22));
+        }
+
+        .lantern {
+            position: absolute;
+            top: 34px;
+            width: 92px;
+            height: 146px;
+            border-radius: 46px;
+            background: linear-gradient(180deg, #ffd36a, #ff8d4c 72%, #b94a21);
+            box-shadow: 0 0 40px rgba(255, 167, 76, 0.44);
+            opacity: 0.9;
+        }
+
+        .lantern::before,
+        .lantern::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(84, 30, 14, 0.9);
+        }
+
+        .lantern::before {
+            top: -18px;
+            width: 12px;
+            height: 24px;
+            border-radius: 8px;
+        }
+
+        .lantern::after {
+            bottom: -12px;
+            width: 8px;
+            height: 22px;
+            border-radius: 6px;
+        }
+
+        .lantern.left {
+            left: 92px;
+        }
+
+        .lantern.right {
+            right: 92px;
+        }
+
+        .title-wrap {
+            position: absolute;
+            top: 72px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 2;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 18px;
+            border: 1px solid rgba(255, 233, 205, 0.28);
+            border-radius: 999px;
+            background: rgba(49, 23, 14, 0.45);
+            font-size: 14px;
+            letter-spacing: 0.18em;
+            color: var(--text-soft);
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 18px 0 10px;
+            font-size: 72px;
+            line-height: 1;
+            letter-spacing: 0.08em;
+            color: #ffe8bf;
+            text-shadow:
+                0 2px 0 rgba(111, 39, 11, 0.9),
+                0 10px 34px rgba(53, 16, 5, 0.46);
+        }
+
+        .subtitle {
+            margin: 0;
+            font-size: 22px;
+            color: #f5dcc4;
+            letter-spacing: 0.08em;
+        }
+
+        .content {
+            position: absolute;
+            inset: 184px 90px 86px;
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 44px;
+            align-items: stretch;
+        }
+
+        .hero-card {
+            position: relative;
+            border-radius: var(--radius-xl);
+            background:
+                linear-gradient(145deg, rgba(255, 222, 180, 0.12), rgba(255, 136, 76, 0.08)),
+                rgba(46, 20, 12, 0.5);
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            padding: 42px;
+        }
+
+        .hero-card::before {
+            content: "";
+            position: absolute;
+            inset: auto -80px -140px auto;
+            width: 360px;
+            height: 360px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 188, 86, 0.34), transparent 65%);
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            border-radius: 999px;
+            background: rgba(255, 243, 224, 0.12);
+            border: 1px solid rgba(255, 225, 186, 0.18);
+            color: #ffe8c7;
+            font-size: 14px;
+        }
+
+        .hero-heading {
+            margin: 26px 0 12px;
+            font-size: 34px;
+            line-height: 1.3;
+            color: #fff5e5;
+        }
+
+        .hero-desc {
+            max-width: 520px;
+            margin: 0 0 34px;
+            font-size: 18px;
+            line-height: 1.8;
+            color: #f7ddc1;
+        }
+
+        .stall {
+            position: absolute;
+            left: 38px;
+            right: 34px;
+            bottom: 38px;
+            height: 242px;
+        }
+
+        .stall-roof {
+            position: absolute;
+            left: 60px;
+            right: 36px;
+            top: 0;
+            height: 76px;
+            border-radius: 22px 22px 12px 12px;
+            background: repeating-linear-gradient(
+                90deg,
+                #ff8c4d 0 44px,
+                #ffd188 44px 88px
+            );
+            box-shadow: 0 18px 30px rgba(34, 9, 2, 0.2);
+        }
+
+        .stall-board {
+            position: absolute;
+            left: 132px;
+            right: 110px;
+            top: 24px;
+            height: 66px;
+            border-radius: 18px;
+            background: linear-gradient(180deg, #5e2d1b, #3d1a10);
+            border: 1px solid rgba(255, 211, 158, 0.15);
+            display: grid;
+            place-items: center;
+            color: #ffe6be;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+        }
+
+        .stall-table {
+            position: absolute;
+            left: 28px;
+            right: 0;
+            bottom: 0;
+            height: 146px;
+            border-radius: 24px;
+            background: linear-gradient(180deg, #ffe6bf, #d58d4d);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.34);
+        }
+
+        .food {
+            position: absolute;
+            bottom: 48px;
+            width: 140px;
+            height: 60px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, #f8d29f, #df9a49);
+            box-shadow: 0 18px 28px rgba(33, 11, 2, 0.18);
+        }
+
+        .food.one { left: 88px; }
+        .food.two { left: 242px; width: 156px; }
+        .food.three { left: 418px; width: 132px; }
+
+        .menu-panel {
+            position: relative;
+            border-radius: var(--radius-xl);
+            background: linear-gradient(180deg, rgba(67, 31, 21, 0.9), rgba(48, 21, 13, 0.92));
+            border: 1px solid rgba(255, 219, 177, 0.16);
+            box-shadow: var(--shadow);
+            padding: 34px 30px 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .settings-chip {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            border-radius: 999px;
+            background: rgba(255, 245, 230, 0.1);
+            border: 1px solid rgba(255, 230, 190, 0.2);
+            color: #ffe7c4;
+            font-size: 14px;
+        }
+
+        .menu-title {
+            margin: 0 0 12px;
+            font-size: 28px;
+            color: #ffedcf;
+        }
+
+        .menu-note {
+            margin: 0 0 28px;
+            font-size: 15px;
+            line-height: 1.7;
+            color: #efcfad;
+        }
+
+        .btn-stack {
+            display: grid;
+            gap: 16px;
+        }
+
+        .btn {
+            position: relative;
+            padding: 19px 22px;
+            border-radius: 20px;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-align: center;
+            box-shadow: 0 16px 26px rgba(32, 10, 4, 0.22);
+        }
+
+        .btn.start {
+            background: linear-gradient(180deg, var(--accent), var(--accent-2));
+            color: #fff7ea;
+        }
+
+        .btn.continue {
+            background: linear-gradient(180deg, #f6f1e8, #e7cfaf);
+            color: var(--text-dark);
+        }
+
+        .btn.quit {
+            background: linear-gradient(180deg, rgba(255, 248, 240, 0.16), rgba(255, 240, 223, 0.08));
+            border: 1px solid rgba(255, 228, 190, 0.18);
+            color: #f4d4b1;
+        }
+
+        .menu-footer {
+            margin-top: 26px;
+            padding: 16px 18px;
+            border-radius: var(--radius-md);
+            background: rgba(255, 244, 228, 0.08);
+            border: 1px solid rgba(255, 229, 194, 0.12);
+            color: #f3d8bb;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .status-bar {
+            position: absolute;
+            left: 90px;
+            right: 90px;
+            bottom: 28px;
+            display: flex;
+            justify-content: space-between;
+            gap: 22px;
+            align-items: center;
+            padding: 16px 20px;
+            border-radius: 999px;
+            background: rgba(40, 17, 11, 0.68);
+            border: 1px solid rgba(255, 225, 186, 0.14);
+            color: #f6dcc0;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(255, 248, 236, 0.08);
+        }
+
+        .version {
+            color: #d9b391;
+        }
+
+        @media (max-width: 1100px) {
+            .content {
+                inset: 176px 40px 84px;
+                grid-template-columns: 1fr;
+            }
+
+            .hero-card {
+                min-height: 340px;
+            }
+
+            .menu-panel {
+                min-height: 380px;
+            }
+
+            .status-bar {
+                left: 40px;
+                right: 40px;
+                border-radius: 28px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="screen">
+        <div class="lantern left"></div>
+        <div class="lantern right"></div>
+
+        <section class="title-wrap">
+            <div class="eyebrow">MAIN MENU · NIGHT MARKET OPEN</div>
+            <h1>烤冷面大师</h1>
+            <p class="subtitle">夜市摆摊经营，从第一锅热面开始</p>
+        </section>
+
+        <section class="content">
+            <article class="hero-card">
+                <div class="hero-badge">招牌推荐 · 新游戏先进入第一关，新手通过后解锁后续场景</div>
+                <h2 class="hero-heading">把首页做成真正的入口页，而不是把后续经营信息提前塞满。</h2>
+                <p class="hero-desc">
+                    当前页面只负责让玩家快速进入游戏、继续存档、打开设置或退出。
+                    地图、购物、备菜、场景选择这些内容都延后到游戏内准备阶段再出现。
+                </p>
+
+                <div class="stall">
+                    <div class="stall-roof"></div>
+                    <div class="stall-board">烤冷面招牌摊</div>
+                    <div class="stall-table"></div>
+                    <div class="food one"></div>
+                    <div class="food two"></div>
+                    <div class="food three"></div>
+                </div>
+            </article>
+
+            <aside class="menu-panel">
+                <div class="settings-chip">⚙ 设置</div>
+                <h3 class="menu-title">开始今晚的营业</h3>
+                <p class="menu-note">
+                    主菜单只保留最核心的四个入口，避免玩家在首页就面对过多系统层级。
+                </p>
+
+                <div class="btn-stack">
+                    <div class="btn start">开始游戏</div>
+                    <div class="btn continue">继续游戏</div>
+                    <div class="btn quit">退出游戏</div>
+                </div>
+
+                <div class="menu-footer">
+                    继续游戏后先进入准备阶段；准备阶段可以选择场景、去购物、去备菜，准备完成后再进入营业阶段。
+                </div>
+            </aside>
+        </section>
+
+        <footer class="status-bar">
+            <div class="status-pill">提示：开始游戏直入第一关，通关后才解锁后续场景入口</div>
+            <div class="version">Version 0.5 · Mockup for Figma Capture</div>
+        </footer>
+    </main>
+</body>
+</html>

@@ -1,0 +1,72 @@
+// 酱料刮刮乐遮罩效果 Shader
+// 使用遮罩纹理的 alpha 通道来控制酱料的显示
+
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: sprite-vs:vert
+      frag: sprite-fs:frag
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendSrcAlpha: src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      rasterizerState:
+        cullMode: none
+      properties:
+        mainTexture: { value: white }
+        maskTexture: { value: white }
+        mainColor: { value: [1, 1, 1, 1], editor: { type: color } }
+}%
+
+CCProgram sprite-vs %{
+  precision highp float;
+  #include <builtin/uniforms/cc-global>
+  
+  in vec3 a_position;
+  in vec2 a_texCoord;
+  in vec4 a_color;
+
+  out vec2 v_uv;
+  out vec4 v_color;
+
+  vec4 vert () {
+    vec4 pos = vec4(a_position, 1);
+    pos = cc_matViewProj * pos;
+    v_uv = a_texCoord;
+    v_color = a_color;
+    return pos;
+  }
+}%
+
+CCProgram sprite-fs %{
+  precision highp float;
+  
+  in vec2 v_uv;
+  in vec4 v_color;
+  
+  uniform sampler2D mainTexture;
+  uniform sampler2D maskTexture;
+  
+  uniform Constant {
+    vec4 mainColor;
+  };
+
+  vec4 frag () {
+    vec4 texColor = texture(mainTexture, v_uv);
+    vec4 maskColor = texture(maskTexture, v_uv);
+    
+    // 使用遮罩的 alpha 或红色通道来控制显示
+    float maskAlpha = maskColor.r;
+    
+    vec4 finalColor = texColor * v_color * mainColor;
+    finalColor.a *= maskAlpha;
+    
+    return finalColor;
+  }
+}%

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>冷面人生 - 简体剧情手写体</title>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap");
+
+        :root {
+            --cold-1: #dbe8f3;
+            --cold-2: #97aec6;
+            --cold-3: #5f7592;
+            --warm-1: #ffe5b0;
+            --warm-2: #ffb86b;
+            --warm-3: #ef7345;
+            --ink: #5d281c;
+            --paper: rgba(255, 249, 241, 0.72);
+            --paper-strong: rgba(255, 251, 245, 0.9);
+            --shadow: 0 20px 52px rgba(44, 16, 9, 0.16);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #241613;
+        }
+
+        .screen {
+            position: relative;
+            width: min(1280px, 100vw);
+            height: min(720px, 100vh);
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 20% 18%, rgba(255,255,255,0.42), transparent 18%),
+                radial-gradient(circle at 80% 18%, rgba(255,247,214,0.48), transparent 18%),
+                linear-gradient(90deg, var(--cold-1) 0%, var(--cold-2) 28%, #d8cbc4 47%, #e9c9a9 54%, var(--warm-1) 72%, var(--warm-2) 86%, var(--warm-3) 100%);
+        }
+
+        .screen::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.05)),
+                linear-gradient(90deg, rgba(77, 101, 131, 0.15), transparent 34%, transparent 66%, rgba(225, 110, 63, 0.14));
+        }
+
+        .screen::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: -8%;
+            bottom: -8%;
+            width: 220px;
+            transform: translateX(-50%);
+            background: radial-gradient(circle, rgba(255,255,255,0.3), rgba(255,255,255,0.08) 42%, transparent 78%);
+            filter: blur(20px);
+        }
+
+        .side-note {
+            position: absolute;
+            top: 102px;
+            width: 220px;
+            font-size: 15px;
+            line-height: 1.9;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            z-index: 3;
+        }
+
+        .side-note.left {
+            left: 72px;
+            color: rgba(63, 81, 104, 0.88);
+            text-align: left;
+        }
+
+        .side-note.right {
+            right: 72px;
+            color: rgba(126, 59, 35, 0.88);
+            text-align: right;
+        }
+
+        .side-note .cap {
+            display: inline-block;
+            margin-bottom: 14px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(255, 251, 244, 0.44);
+            backdrop-filter: blur(6px);
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 0.18em;
+        }
+
+        .header {
+            position: absolute;
+            left: 50%;
+            top: 82px;
+            width: 720px;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 4;
+        }
+
+        .mini {
+            display: inline-block;
+            padding: 10px 18px;
+            border-radius: 999px;
+            background: rgba(255, 251, 245, 0.5);
+            backdrop-filter: blur(8px);
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 0.24em;
+            color: rgba(91, 42, 30, 0.76);
+        }
+
+        .title-wrap {
+            position: relative;
+            margin: 26px auto 18px;
+            width: 560px;
+            height: 136px;
+        }
+
+        .title-shadow,
+        .title-main {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            white-space: nowrap;
+            transform: translateX(-50%);
+            font-family: "Ma Shan Zheng", cursive;
+            line-height: 1;
+            letter-spacing: 0.04em;
+        }
+
+        .title-shadow {
+            top: 10px;
+            font-size: 102px;
+            color: rgba(89, 42, 30, 0.18);
+            transform: translateX(-50%) skewX(-4deg);
+        }
+
+        .title-main {
+            font-size: 96px;
+            transform: translateX(-50%) skewX(-4deg);
+            color: #fff5e3;
+            text-shadow:
+                0 3px 0 rgba(96, 46, 33, 0.14),
+                0 16px 26px rgba(70, 24, 16, 0.12);
+        }
+
+        .title-main .cold {
+            color: #eef7ff;
+            -webkit-text-stroke: 3px rgba(81, 103, 130, 0.62);
+            paint-order: stroke fill;
+        }
+
+        .title-main .warm {
+            color: #fff0da;
+            -webkit-text-stroke: 3px rgba(140, 62, 37, 0.56);
+            paint-order: stroke fill;
+        }
+
+        .title-line {
+            position: absolute;
+            left: 50%;
+            bottom: 8px;
+            width: 260px;
+            height: 14px;
+            border-radius: 999px;
+            transform: translateX(-50%) rotate(-8deg);
+            background: linear-gradient(90deg, rgba(93, 124, 162, 0.82), rgba(255, 229, 173, 0.9), rgba(237, 114, 66, 0.82));
+            box-shadow: 0 0 16px rgba(255,255,255,0.24);
+        }
+
+        .subtitle {
+            margin: 0 auto;
+            max-width: 660px;
+            font-size: 20px;
+            line-height: 1.9;
+            font-weight: 700;
+            color: rgba(93, 48, 35, 0.9);
+        }
+
+        .menu {
+            position: absolute;
+            left: 50%;
+            top: 398px;
+            width: 324px;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 5;
+        }
+
+        .settings {
+            position: absolute;
+            top: -2px;
+            right: -78px;
+            width: 52px;
+            height: 52px;
+            display: grid;
+            place-items: center;
+            border-radius: 16px;
+            background: rgba(255, 251, 245, 0.72);
+            backdrop-filter: blur(8px);
+            box-shadow: var(--shadow);
+            color: rgba(93, 45, 32, 0.88);
+            font-size: 25px;
+            font-weight: 900;
+        }
+
+        .button {
+            display: grid;
+            place-items: center;
+            width: 100%;
+            margin-bottom: 16px;
+            border-radius: 999px;
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(8px);
+        }
+
+        .button.start {
+            height: 72px;
+            background: linear-gradient(180deg, rgba(255, 218, 92, 0.98), rgba(255, 159, 64, 0.98));
+            color: #6c321e;
+        }
+
+        .button.continue {
+            height: 62px;
+            background: rgba(255, 249, 239, 0.86);
+            color: #663020;
+        }
+
+        .button.quit {
+            height: 56px;
+            background: rgba(87, 52, 45, 0.22);
+            border: 1px solid rgba(255,255,255,0.14);
+            color: #fff4e4;
+        }
+
+        .bottom {
+            position: absolute;
+            left: 50%;
+            bottom: 34px;
+            transform: translateX(-50%);
+            z-index: 4;
+            padding: 14px 24px;
+            border-radius: 999px;
+            background: rgba(255, 251, 244, 0.42);
+            backdrop-filter: blur(8px);
+            font-size: 14px;
+            font-weight: 700;
+            color: rgba(89, 44, 31, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <main class="screen">
+        <aside class="side-note left">
+            <div class="cap">表面的冷</div>
+            安静、克制、不擅表达。<br>
+            看起来没什么反应，像一张冷冷的脸。
+        </aside>
+
+        <aside class="side-note right">
+            <div class="cap">内心的暖</div>
+            被顾客、故事和日常慢慢治愈。<br>
+            真正的情绪，藏在热腾腾的烟火里。
+        </aside>
+
+        <header class="header">
+            <div class="mini">STORY TITLE · 简体剧情手写版</div>
+            <div class="title-wrap">
+                <div class="title-shadow">冷面人生</div>
+                <div class="title-main"><span class="cold">冷面</span><span class="warm">人生</span></div>
+                <div class="title-line"></div>
+            </div>
+            <p class="subtitle">一个面瘫青年经营烤冷面摊的治愈故事。<br>从看起来冷淡，到学会温柔地面对自己。</p>
+        </header>
+
+        <section class="menu">
+            <div class="settings">⚙</div>
+            <div class="button start">开始游戏</div>
+            <div class="button continue">继续游戏</div>
+            <div class="button quit">退出游戏</div>
+        </section>
+
+        <div class="bottom">首页只保留入口，不提前展开后续玩法。</div>
+    </main>
+</body>
+</html>

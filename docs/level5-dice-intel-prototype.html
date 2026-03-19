@@ -1,0 +1,1167 @@
+<!doctype html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>第五关 - 骰子情报版（可试玩）</title>
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Serif+SC:wght@600;700&display=swap");
+
+            :root {
+                --ink: #1b1410;
+                --paper: #fbf2e2;
+                --coal: #2a221a;
+                --wine: #7a1e2f;
+                --gold: #f1c36a;
+                --mint: #6cc3a2;
+                --smoke: #cbb7a3;
+                --accent: #ff7a3c;
+                --deep: #11100f;
+                --shadow: rgba(19, 12, 8, 0.24);
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                font-family: "ZCOOL KuaiLe", "Noto Serif SC", "STKaiti", "KaiTi", serif;
+                color: var(--ink);
+                background: radial-gradient(circle at top, #ffeacb 0%, #f0cfa3 40%, #bf6f4f 100%);
+                min-height: 100vh;
+            }
+
+            .page {
+                max-width: 1280px;
+                margin: 0 auto;
+                padding: 28px 20px 60px;
+            }
+
+            header {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                justify-content: space-between;
+                gap: 16px;
+                background: rgba(255, 255, 255, 0.62);
+                border: 2px solid var(--coal);
+                border-radius: 18px;
+                padding: 18px 24px;
+                box-shadow: 0 12px 30px var(--shadow);
+                backdrop-filter: blur(6px);
+            }
+
+            .title {
+                font-size: clamp(26px, 4vw, 40px);
+                color: var(--wine);
+                letter-spacing: 1px;
+            }
+
+            .subtitle {
+                font-size: 15px;
+                line-height: 1.7;
+                max-width: 520px;
+                color: var(--coal);
+            }
+
+            .chips {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .chip {
+                padding: 8px 14px;
+                border-radius: 999px;
+                background: var(--coal);
+                color: var(--gold);
+                border: 2px solid var(--gold);
+                font-size: 13px;
+                box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.15);
+            }
+
+            .main {
+                margin-top: 20px;
+                display: grid;
+                grid-template-columns: 1.2fr 0.8fr;
+                gap: 18px;
+            }
+
+            .panel {
+                background: rgba(255, 255, 255, 0.78);
+                border-radius: 18px;
+                border: 2px solid var(--coal);
+                padding: 18px;
+                box-shadow: 0 12px 26px var(--shadow);
+                position: relative;
+            }
+
+            .panel h3 {
+                margin: 0 0 12px;
+                color: var(--wine);
+                font-size: 20px;
+            }
+
+            .status {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 12px;
+                font-size: 14px;
+            }
+
+            .status span {
+                background: #fff3dd;
+                padding: 6px 10px;
+                border-radius: 10px;
+                border: 1px solid var(--smoke);
+            }
+
+            .bowl {
+                margin-top: 16px;
+                padding: 18px;
+                border-radius: 16px;
+                border: 2px solid var(--coal);
+                background: linear-gradient(160deg, #31231b 0%, #4a3024 100%);
+                color: #f6e3c5;
+                display: grid;
+                gap: 12px;
+            }
+
+            .dice-row {
+                display: flex;
+                gap: 12px;
+                justify-content: center;
+            }
+
+            .dice {
+                width: 58px;
+                height: 58px;
+                border-radius: 12px;
+                background: #fff7ea;
+                border: 2px solid var(--gold);
+                display: grid;
+                place-items: center;
+                font-size: 22px;
+                color: var(--wine);
+                box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+            }
+
+            .dice.hidden {
+                background: linear-gradient(145deg, #f2d3a1, #f9e9c9);
+                color: transparent;
+            }
+
+            .result {
+                text-align: center;
+                font-size: 15px;
+                line-height: 1.6;
+                min-height: 40px;
+            }
+
+            .controls {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                justify-content: center;
+            }
+
+            button {
+                border: none;
+                border-radius: 10px;
+                padding: 10px 16px;
+                font-size: 14px;
+                cursor: pointer;
+                background: var(--wine);
+                color: #fff;
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+                transition: transform 0.15s ease, opacity 0.15s ease;
+            }
+
+            button:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+                box-shadow: none;
+            }
+
+            button:hover:not(:disabled) {
+                transform: translateY(-2px);
+            }
+
+            .secondary {
+                background: var(--coal);
+            }
+
+            .ghost {
+                background: transparent;
+                border: 1px dashed var(--coal);
+                color: var(--coal);
+                box-shadow: none;
+            }
+
+            .info-avatar {
+                display: flex;
+                gap: 14px;
+                align-items: center;
+                margin-bottom: 10px;
+            }
+
+            .avatar {
+                width: 56px;
+                height: 56px;
+                background: #131313;
+                border-radius: 50%;
+                position: relative;
+                box-shadow: inset 0 -4px 0 rgba(255, 255, 255, 0.08);
+            }
+
+            .avatar::after {
+                content: "";
+                position: absolute;
+                width: 42px;
+                height: 16px;
+                background: #1f1f1f;
+                border-radius: 999px;
+                top: 18px;
+                left: 7px;
+                box-shadow: 0 0 0 2px #444 inset;
+            }
+
+            .info-list,
+            .owned-list {
+                display: grid;
+                gap: 10px;
+            }
+
+            .info-card {
+                border-radius: 12px;
+                border: 1px solid var(--smoke);
+                padding: 10px 12px;
+                background: #fff4df;
+                display: grid;
+                gap: 6px;
+            }
+
+            .info-card small {
+                color: #644a37;
+                font-size: 12px;
+            }
+
+            .info-card button {
+                width: 100%;
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+
+            .owned-card {
+                border-left: 4px solid var(--mint);
+                padding: 8px 10px;
+                background: #f8fffb;
+                border-radius: 10px;
+                font-size: 13px;
+                color: #1b2e24;
+            }
+
+            .bets {
+                margin-top: 20px;
+                display: grid;
+                gap: 16px;
+            }
+
+            .bet-panel {
+                display: grid;
+                gap: 10px;
+            }
+
+            .bet-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));
+                gap: 8px;
+            }
+
+            .bet-btn {
+                border: 1px solid var(--smoke);
+                background: #fff8ec;
+                color: var(--coal);
+                padding: 8px 6px;
+                border-radius: 10px;
+                font-size: 13px;
+                cursor: pointer;
+                min-height: 42px;
+                display: grid;
+                place-items: center;
+            }
+
+            .bet-select {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                align-items: center;
+            }
+
+            .bet-select input {
+                width: 90px;
+                padding: 8px;
+                border-radius: 8px;
+                border: 1px solid var(--smoke);
+                font-size: 14px;
+            }
+
+            .message {
+                min-height: 22px;
+                font-size: 13px;
+                color: #7a2d25;
+            }
+
+            .shop-grid {
+                display: grid;
+                gap: 10px;
+            }
+
+            .shop-item {
+                border-radius: 12px;
+                border: 1px solid var(--smoke);
+                background: #fff1d9;
+                padding: 10px 12px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .exchange {
+                display: grid;
+                gap: 8px;
+            }
+
+            .exchange-row {
+                display: flex;
+                gap: 10px;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+
+            .exchange-row input {
+                width: 120px;
+                padding: 8px;
+                border-radius: 8px;
+                border: 1px solid var(--smoke);
+                font-size: 14px;
+            }
+
+            .tag {
+                display: inline-block;
+                padding: 2px 8px;
+                border-radius: 999px;
+                background: var(--accent);
+                color: #1f130b;
+                font-size: 11px;
+                margin-left: 6px;
+            }
+
+            .inventory {
+                font-size: 12px;
+                color: #5c4332;
+                margin-top: 6px;
+            }
+
+            @media (max-width: 980px) {
+                .main {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+        </style>
+    </head>
+    <body>
+        <div class="page">
+            <header>
+                <div>
+                    <div class="title">第五关 · 骰子情报版（可试玩）</div>
+                    <div class="subtitle">
+                        三骰赌局 + 黑衣人付费情报。情报偏向点数/对子/豹子，不提供免费提示；筹码可兑换现金或在赌场商店购买稀有食材与道具。
+                    </div>
+                </div>
+                <div class="chips">
+                    <div class="chip">三骰</div>
+                    <div class="chip">付费情报</div>
+                    <div class="chip">点数/对子/豹子</div>
+                    <div class="chip">筹码商店</div>
+                </div>
+            </header>
+
+            <section class="main">
+                <div class="panel">
+                    <h3>赌桌</h3>
+                    <div class="status">
+                        <span>筹码：<strong id="balance">0</strong></span>
+                        <span>现金：<strong id="cash">0</strong></span>
+                        <span>本局下注：<strong id="totalBet">0</strong></span>
+                        <span>局数：<strong id="round">1</strong></span>
+                    </div>
+                    <div class="bowl">
+                        <div class="dice-row" id="diceRow">
+                            <div class="dice hidden">?</div>
+                            <div class="dice hidden">?</div>
+                            <div class="dice hidden">?</div>
+                        </div>
+                        <div class="result" id="resultText">点击“开锅结算”揭示结果。</div>
+                        <div class="controls">
+                            <button id="revealBtn">开锅结算</button>
+                            <button id="nextRoundBtn" class="secondary" disabled>下一局</button>
+                            <button id="clearBetsBtn" class="ghost">清空下注</button>
+                        </div>
+                    </div>
+                    <div class="message" id="message"></div>
+                </div>
+
+                <div class="panel">
+                    <h3>黑衣人情报</h3>
+                    <div class="info-avatar">
+                        <div class="avatar"></div>
+                        <div>
+                            <div><strong>黑衣人</strong> · 点击购买情报</div>
+                            <div class="inventory">本局最多买 2 条，第二条 +50% 价格</div>
+                        </div>
+                    </div>
+                    <div class="info-list" id="infoList"></div>
+                    <div style="margin-top: 10px;">
+                        <strong>已购情报</strong>
+                        <div class="owned-list" id="ownedList"></div>
+                    </div>
+                    <hr style="border:none;border-top:1px dashed var(--smoke);margin:14px 0;">
+                    <h3>赌场商店</h3>
+                    <div class="shop-grid" id="shopList"></div>
+                    <div class="inventory" id="inventoryList"></div>
+                    <hr style="border:none;border-top:1px dashed var(--smoke);margin:14px 0;">
+                    <h3>筹码兑现金</h3>
+                    <div class="exchange">
+                        <div class="inventory">手续费 <span id="feeRate">0</span>%</div>
+                        <div class="exchange-row">
+                            <input id="cashoutAmount" type="number" min="10" value="100" />
+                            <button id="cashoutBtn" class="secondary">兑换现金</button>
+                        </div>
+                        <div class="inventory" id="cashoutHint"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel bets">
+                <h3>下注区</h3>
+                <div class="bet-select">
+                    <span>下注金额：</span>
+                    <button class="secondary chip-btn" data-amount="10">10</button>
+                    <button class="secondary chip-btn" data-amount="50">50</button>
+                    <button class="secondary chip-btn" data-amount="100">100</button>
+                    <button class="secondary chip-btn" data-amount="200">200</button>
+                    <input id="betAmount" type="number" min="1" value="10" />
+                    <span class="inventory">点击下注按钮追加金额</span>
+                </div>
+
+                <div class="bet-panel">
+                    <strong>大小</strong>
+                    <div class="bet-grid">
+                        <button class="bet-btn" data-type="small" data-odds="1" data-label="小 4-10">
+                            小 4-10 (1x)
+                        </button>
+                        <button class="bet-btn" data-type="big" data-odds="1" data-label="大 11-17">
+                            大 11-17 (1x)
+                        </button>
+                    </div>
+                    <div class="inventory">豹子通杀，大小都输。</div>
+                </div>
+
+                <div class="bet-panel">
+                    <strong>点数总和</strong>
+                    <div class="bet-grid" id="sumBets"></div>
+                </div>
+
+                <div class="bet-panel">
+                    <strong>对子 / 豹子</strong>
+                    <div class="bet-grid">
+                        <button class="bet-btn" data-type="any-triple" data-odds="24" data-label="任意豹子">
+                            任意豹子 (24x)
+                        </button>
+                    </div>
+                    <div class="bet-grid" id="pairBets"></div>
+                    <div class="inventory">指定对子包含豹子；豹子需三骰相同。</div>
+                </div>
+
+                <div class="bet-panel">
+                    <strong>当前下注</strong>
+                    <div id="betList" class="inventory">暂无下注</div>
+                </div>
+            </section>
+        </div>
+        <script>
+            const state = {
+                balance: 500,
+                cash: 0,
+                round: 0,
+                dice: [1, 1, 1],
+                phase: "betting",
+                bets: {},
+                infoCards: [],
+                purchased: [],
+                purchaseCount: 0,
+                inventory: [],
+                discountTokens: 0,
+                forceRevealDie: 0
+            };
+
+            const sumOdds = {
+                3: 150,
+                4: 50,
+                5: 18,
+                6: 14,
+                7: 12,
+                8: 8,
+                9: 6,
+                10: 6,
+                11: 6,
+                12: 6,
+                13: 8,
+                14: 12,
+                15: 14,
+                16: 18,
+                17: 50,
+                18: 150
+            };
+
+            const shopItems = [
+                { name: "稀有食材包", price: 300, type: "ingredient", desc: "兑换稀有食材（收集向）" },
+                { name: "传奇主料", price: 700, type: "ingredient", desc: "高阶料理素材" },
+                { name: "情报折扣券", price: 220, type: "tool", desc: "下次情报价格 -20%" },
+                { name: "透骰优先券", price: 320, type: "tool", desc: "下一局情报必出透骰票" }
+            ];
+
+            const sumRangeOptions = [
+                { low: 3, high: 6 },
+                { low: 7, high: 12 },
+                { low: 8, high: 13 },
+                { low: 9, high: 14 },
+                { low: 10, high: 15 },
+                { low: 16, high: 18 }
+            ];
+
+            const elements = {
+                balance: document.getElementById("balance"),
+                cash: document.getElementById("cash"),
+                totalBet: document.getElementById("totalBet"),
+                round: document.getElementById("round"),
+                diceRow: document.getElementById("diceRow"),
+                resultText: document.getElementById("resultText"),
+                message: document.getElementById("message"),
+                revealBtn: document.getElementById("revealBtn"),
+                nextRoundBtn: document.getElementById("nextRoundBtn"),
+                clearBetsBtn: document.getElementById("clearBetsBtn"),
+                infoList: document.getElementById("infoList"),
+                ownedList: document.getElementById("ownedList"),
+                sumBets: document.getElementById("sumBets"),
+                pairBets: document.getElementById("pairBets"),
+                betList: document.getElementById("betList"),
+                betAmount: document.getElementById("betAmount"),
+                shopList: document.getElementById("shopList"),
+                inventoryList: document.getElementById("inventoryList"),
+                cashoutAmount: document.getElementById("cashoutAmount"),
+                cashoutBtn: document.getElementById("cashoutBtn"),
+                cashoutHint: document.getElementById("cashoutHint"),
+                feeRate: document.getElementById("feeRate")
+            };
+
+            const CASHOUT_FEE_RATE = 0.12;
+
+            function randInt(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+
+            function shuffle(arr) {
+                const copy = [...arr];
+                for (let i = copy.length - 1; i > 0; i -= 1) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [copy[i], copy[j]] = [copy[j], copy[i]];
+                }
+                return copy;
+            }
+
+            function analyzeDice(dice) {
+                const counts = [0, 0, 0, 0, 0, 0, 0];
+                dice.forEach((value) => {
+                    counts[value] += 1;
+                });
+                const tripleValue = counts.findIndex((count) => count === 3);
+                const isTriple = tripleValue > 0;
+                const pairValues = counts
+                    .map((count, value) => (count === 2 ? value : null))
+                    .filter((value) => value !== null);
+                return {
+                    sum: dice.reduce((a, b) => a + b, 0),
+                    counts,
+                    isTriple,
+                    tripleValue: isTriple ? tripleValue : null,
+                    pairValues,
+                    hasPair: pairValues.length > 0 || isTriple
+                };
+            }
+
+            function pickRange(includeSum, sum) {
+                const matching = sumRangeOptions.filter((range) => sum >= range.low && sum <= range.high);
+                const nonMatching = sumRangeOptions.filter((range) => sum < range.low || sum > range.high);
+                if (includeSum && matching.length > 0) {
+                    return matching[randInt(0, matching.length - 1)];
+                }
+                if (!includeSum && nonMatching.length > 0) {
+                    return nonMatching.sort(
+                        (a, b) =>
+                            Math.abs(sum - (a.low + a.high) / 2) -
+                            Math.abs(sum - (b.low + b.high) / 2)
+                    )[0];
+                }
+                return matching[0] || sumRangeOptions[0];
+            }
+
+            function buildInfoCard(type, analysis) {
+                const info = {
+                    id: `${type}-${Date.now()}-${Math.random()}`,
+                    type,
+                    title: "",
+                    description: "",
+                    reliability: 0,
+                    price: 0,
+                    payload: {}
+                };
+                if (type === "sumRange") {
+                    info.title = "点数区间票";
+                    info.reliability = 0.7;
+                    info.price = 35;
+                    let truthful = Math.random() < info.reliability;
+                    const matchRange = sumRangeOptions.some(
+                        (range) => analysis.sum >= range.low && analysis.sum <= range.high
+                    );
+                    const nonMatchRange = sumRangeOptions.some(
+                        (range) => analysis.sum < range.low || analysis.sum > range.high
+                    );
+                    if (truthful && !matchRange) {
+                        truthful = false;
+                    }
+                    if (!truthful && !nonMatchRange) {
+                        truthful = true;
+                    }
+                    const range = pickRange(truthful, analysis.sum);
+                    info.payload = { low: range.low, high: range.high };
+                    info.description = `总和在 ${range.low}-${range.high}`;
+                    return info;
+                }
+                if (type === "sumLock") {
+                    info.title = "点数锁定票";
+                    info.reliability = 0.8;
+                    info.price = 60;
+                    const candidateCount = Math.random() < 0.5 ? 2 : 3;
+                    let truthful = Math.random() < info.reliability;
+                    const candidates = new Set();
+                    if (truthful) {
+                        candidates.add(analysis.sum);
+                        let guard = 0;
+                        while (candidates.size < candidateCount && guard < 20) {
+                            const offset = randInt(-2, 2);
+                            if (offset === 0) {
+                                guard += 1;
+                                continue;
+                            }
+                            const value = Math.min(18, Math.max(3, analysis.sum + offset));
+                            candidates.add(value);
+                            guard += 1;
+                        }
+                        while (candidates.size < candidateCount) {
+                            candidates.add(randInt(3, 18));
+                        }
+                    } else {
+                        const shift = analysis.sum >= 10 ? -2 : 2;
+                        const base = Math.min(18, Math.max(3, analysis.sum + shift));
+                        while (candidates.size < candidateCount) {
+                            const offset = randInt(-1, 1);
+                            const value = Math.min(18, Math.max(3, base + offset));
+                            if (value !== analysis.sum) {
+                                candidates.add(value);
+                            }
+                        }
+                    }
+                    const list = [...candidates].sort((a, b) => a - b);
+                    info.payload = { candidates: list };
+                    info.description = `总和锁定：${list.join(" / ")}`;
+                    return info;
+                }
+                if (type === "pairPresence") {
+                    info.title = "对子线报";
+                    info.reliability = 0.75;
+                    info.price = 55;
+                    const actual = analysis.hasPair;
+                    const truthful = Math.random() < info.reliability;
+                    const statement = truthful ? actual : !actual;
+                    info.payload = { hasPair: statement };
+                    info.description = statement ? "本局有对子" : "本局无对子";
+                    return info;
+                }
+                if (type === "pairValue") {
+                    info.title = "指定对子线报";
+                    info.reliability = 0.8;
+                    info.price = 70;
+                    const actualPair = analysis.isTriple ? analysis.tripleValue : analysis.pairValues[0] || null;
+                    let truthful = Math.random() < info.reliability;
+                    if (!actualPair) {
+                        truthful = false;
+                    }
+                    const candidates = new Set();
+                    if (truthful) {
+                        candidates.add(actualPair);
+                        while (candidates.size < 2) {
+                            candidates.add(randInt(1, 6));
+                        }
+                    } else {
+                        while (candidates.size < 2) {
+                            const value = randInt(1, 6);
+                            if (value !== actualPair) {
+                                candidates.add(value);
+                            }
+                        }
+                    }
+                    const list = [...candidates];
+                    info.payload = { candidates: list };
+                    info.description = `对子点数倾向：${list.join(" / ")}`;
+                    return info;
+                }
+                if (type === "triplePresence") {
+                    info.title = "豹子风向";
+                    info.reliability = 0.75;
+                    info.price = 65;
+                    const actual = analysis.isTriple;
+                    const truthful = Math.random() < info.reliability;
+                    const statement = truthful ? actual : !actual;
+                    info.payload = { isTriple: statement };
+                    info.description = statement ? "本局有豹子" : "本局无豹子";
+                    return info;
+                }
+                if (type === "revealDie") {
+                    info.title = "透骰票";
+                    info.reliability = 1;
+                    info.price = 90;
+                    const index = randInt(0, 2);
+                    const value = state.dice[index];
+                    info.payload = { index, value };
+                    info.description = `第${index + 1}颗骰子 = ${value}`;
+                    return info;
+                }
+                return info;
+            }
+
+            function generateInfoCards(analysis) {
+                let pool = shuffle([
+                    "sumRange",
+                    "sumLock",
+                    "pairPresence",
+                    "pairValue",
+                    "triplePresence",
+                    "revealDie"
+                ]);
+                const cards = [];
+                if (state.forceRevealDie > 0) {
+                    cards.push(buildInfoCard("revealDie", analysis));
+                    state.forceRevealDie -= 1;
+                    pool = pool.filter((type) => type !== "revealDie");
+                }
+                cards.push(...pool.slice(0, 3 - cards.length).map((type) => buildInfoCard(type, analysis)));
+                if (Math.random() < 0.35 && cards.length > 0) {
+                    const special = cards[randInt(0, cards.length - 1)];
+                    special.special = true;
+                    special.reliability = Math.min(0.95, special.reliability + 0.05);
+                    special.price += 20;
+                }
+                return cards;
+            }
+
+            function evaluateInfoCard(card, analysis) {
+                if (card.type === "sumRange") {
+                    return analysis.sum >= card.payload.low && analysis.sum <= card.payload.high;
+                }
+                if (card.type === "sumLock") {
+                    return card.payload.candidates.includes(analysis.sum);
+                }
+                if (card.type === "pairPresence") {
+                    return card.payload.hasPair === analysis.hasPair;
+                }
+                if (card.type === "pairValue") {
+                    const value = analysis.isTriple ? analysis.tripleValue : analysis.pairValues[0];
+                    return analysis.hasPair && value && card.payload.candidates.includes(value);
+                }
+                if (card.type === "triplePresence") {
+                    return card.payload.isTriple === analysis.isTriple;
+                }
+                if (card.type === "revealDie") {
+                    return state.dice[card.payload.index] === card.payload.value;
+                }
+                return false;
+            }
+
+            function startRound() {
+                state.dice = [randInt(1, 6), randInt(1, 6), randInt(1, 6)];
+                state.phase = "betting";
+                state.bets = {};
+                state.purchased = [];
+                state.purchaseCount = 0;
+                state.round += 1;
+                const analysis = analyzeDice(state.dice);
+                state.infoCards = generateInfoCards(analysis);
+                elements.resultText.textContent = "点击“开锅结算”揭示结果。";
+                updateUI();
+            }
+
+            function placeBet(type, label, odds, value) {
+                if (state.phase !== "betting") {
+                    showMessage("已结算，点击“下一局”继续。");
+                    return;
+                }
+                const amount = parseInt(elements.betAmount.value, 10);
+                if (Number.isNaN(amount) || amount <= 0) {
+                    showMessage("请输入有效下注金额。");
+                    return;
+                }
+                if (state.balance < amount) {
+                    showMessage("筹码不足。");
+                    return;
+                }
+                state.balance -= amount;
+                const key = `${type}-${value ?? ""}`;
+                if (!state.bets[key]) {
+                    state.bets[key] = { type, label, odds: Number(odds), amount: 0, value };
+                }
+                state.bets[key].amount += amount;
+                updateUI();
+            }
+
+            function clearBets() {
+                if (state.phase !== "betting") {
+                    return;
+                }
+                Object.values(state.bets).forEach((bet) => {
+                    state.balance += bet.amount;
+                });
+                state.bets = {};
+                updateUI();
+            }
+
+            function revealRound() {
+                if (state.phase !== "betting") {
+                    return;
+                }
+                state.phase = "revealed";
+                const analysis = analyzeDice(state.dice);
+                let totalWin = 0;
+                Object.values(state.bets).forEach((bet) => {
+                    if (isBetWin(bet, analysis)) {
+                        const payout = bet.amount * bet.odds;
+                        totalWin += payout;
+                        state.balance += payout;
+                    }
+                });
+                const nearMiss = totalWin === 0 ? getNearMissHint(analysis) : "";
+                elements.resultText.textContent = `结果：${state.dice.join("、")} | 总和 ${analysis.sum} | 对子 ${
+                    analysis.hasPair ? "有" : "无"
+                } | 豹子 ${analysis.isTriple ? "有" : "无"} | 赢取 ${Math.floor(totalWin)} 筹码${
+                    nearMiss ? ` | ${nearMiss}` : ""
+                }`;
+                updateUI();
+            }
+
+            function isBetWin(bet, analysis) {
+                if (bet.type === "small") {
+                    return analysis.sum >= 4 && analysis.sum <= 10 && !analysis.isTriple;
+                }
+                if (bet.type === "big") {
+                    return analysis.sum >= 11 && analysis.sum <= 17 && !analysis.isTriple;
+                }
+                if (bet.type === "sum") {
+                    return analysis.sum === bet.value;
+                }
+                if (bet.type === "pair") {
+                    if (analysis.isTriple) {
+                        return analysis.tripleValue === bet.value;
+                    }
+                    return analysis.hasPair && analysis.pairValues.includes(bet.value);
+                }
+                if (bet.type === "any-triple") {
+                    return analysis.isTriple;
+                }
+                return false;
+            }
+
+            function buyInfo(cardId) {
+                if (state.phase !== "betting") {
+                    showMessage("本局已结算，无法购买情报。");
+                    return;
+                }
+                if (state.purchaseCount >= 2) {
+                    showMessage("本局已买满 2 条情报。");
+                    return;
+                }
+                const card = state.infoCards.find((item) => item.id === cardId);
+                if (!card || card.purchased) {
+                    return;
+                }
+                const price = getInfoPrice(card);
+                if (state.balance < price) {
+                    showMessage("筹码不足。");
+                    return;
+                }
+                state.balance -= price;
+                state.purchaseCount += 1;
+                card.purchased = true;
+                state.purchased.push(card);
+                if (state.discountTokens > 0) {
+                    state.discountTokens -= 1;
+                }
+                updateUI();
+            }
+
+            function redeemItem(name, price) {
+                if (state.balance < price) {
+                    showMessage("筹码不足，无法兑换。");
+                    return;
+                }
+                state.balance -= price;
+                state.inventory.push(name);
+                if (name === "情报折扣券") {
+                    state.discountTokens += 1;
+                }
+                if (name === "透骰优先券") {
+                    state.forceRevealDie += 1;
+                }
+                updateUI();
+            }
+
+            function showMessage(text) {
+                elements.message.textContent = text;
+                setTimeout(() => {
+                    elements.message.textContent = "";
+                }, 1600);
+            }
+
+            function getInfoPrice(card) {
+                const multiplier = state.purchaseCount === 1 ? 1.5 : 1;
+                let price = Math.ceil(card.price * multiplier);
+                if (state.discountTokens > 0) {
+                    price = Math.ceil(price * 0.8);
+                }
+                return price;
+            }
+
+            function cashout() {
+                const amount = parseInt(elements.cashoutAmount.value, 10);
+                if (Number.isNaN(amount) || amount <= 0) {
+                    showMessage("请输入有效兑换金额。");
+                    return;
+                }
+                if (state.balance < amount) {
+                    showMessage("筹码不足，无法兑换。");
+                    return;
+                }
+                const net = Math.floor(amount * (1 - CASHOUT_FEE_RATE));
+                state.balance -= amount;
+                state.cash += net;
+                updateUI();
+            }
+
+            function updateCashoutHint() {
+                const amount = parseInt(elements.cashoutAmount.value, 10);
+                if (Number.isNaN(amount) || amount <= 0) {
+                    elements.cashoutHint.textContent = "输入筹码金额可换算到手现金。";
+                    return;
+                }
+                const net = Math.floor(amount * (1 - CASHOUT_FEE_RATE));
+                elements.cashoutHint.textContent = `预计到手 ${net} 现金（手续费 ${Math.round(
+                    CASHOUT_FEE_RATE * 100
+                )}%）`;
+            }
+
+            function getNearMissHint(analysis) {
+                const sumBets = Object.values(state.bets).filter((bet) => bet.type === "sum");
+                if (sumBets.length === 0) {
+                    return "";
+                }
+                let closest = Infinity;
+                sumBets.forEach((bet) => {
+                    closest = Math.min(closest, Math.abs(analysis.sum - bet.value));
+                });
+                if (closest === 1) {
+                    return "差一点就中";
+                }
+                if (closest === 2) {
+                    return "就差两点";
+                }
+                return "";
+            }
+
+            function updateBetsUI() {
+                const bets = Object.values(state.bets);
+                if (bets.length === 0) {
+                    elements.betList.textContent = "暂无下注";
+                } else {
+                    elements.betList.innerHTML = bets
+                        .map((bet) => `${bet.label}：${bet.amount}（赔率 ${bet.odds}x）`)
+                        .join("<br />");
+                }
+                elements.totalBet.textContent = bets.reduce((sum, bet) => sum + bet.amount, 0);
+            }
+
+            function updateDiceUI() {
+                const diceEls = elements.diceRow.querySelectorAll(".dice");
+                diceEls.forEach((el, index) => {
+                    if (state.phase === "betting") {
+                        el.classList.add("hidden");
+                        el.textContent = "?";
+                    } else {
+                        el.classList.remove("hidden");
+                        el.textContent = state.dice[index];
+                    }
+                });
+            }
+
+            function updateInfoUI() {
+                elements.infoList.innerHTML = "";
+                state.infoCards.forEach((card) => {
+                    const cardEl = document.createElement("div");
+                    cardEl.className = "info-card";
+                    const specialTag = card.special ? `<span class="tag">特供</span>` : "";
+                    cardEl.innerHTML = `
+                        <strong>${card.title}${specialTag}</strong>
+                        <div>${card.description}</div>
+                        <small>可信度 ${(card.reliability * 100).toFixed(0)}%</small>
+                    `;
+                    const button = document.createElement("button");
+                    const price = getInfoPrice(card);
+                    button.textContent = card.purchased ? "已购买" : `购买 ${price}`;
+                    button.disabled = card.purchased || state.purchaseCount >= 2 || state.phase !== "betting";
+                    button.addEventListener("click", () => buyInfo(card.id));
+                    cardEl.appendChild(button);
+                    elements.infoList.appendChild(cardEl);
+                });
+
+                elements.ownedList.innerHTML = "";
+                if (state.purchased.length === 0) {
+                    elements.ownedList.innerHTML = `<div class="owned-card">暂无情报</div>`;
+                } else {
+                    const analysis = analyzeDice(state.dice);
+                    state.purchased.forEach((card) => {
+                        const accurate = state.phase === "revealed" ? evaluateInfoCard(card, analysis) : null;
+                        const badge = accurate === null ? "" : accurate ? "（核对：正确）" : "（核对：偏差）";
+                        const item = document.createElement("div");
+                        item.className = "owned-card";
+                        item.textContent = `${card.title}：${card.description}${badge}`;
+                        elements.ownedList.appendChild(item);
+                    });
+                }
+            }
+
+            function updateShopUI() {
+                elements.shopList.innerHTML = "";
+                shopItems.forEach((item) => {
+                    const row = document.createElement("div");
+                    row.className = "shop-item";
+                    row.innerHTML = `
+                        <div>
+                            <strong>${item.name}</strong>
+                            <div class="inventory">价格：${item.price} 筹码</div>
+                            <div class="inventory">${item.desc}</div>
+                        </div>
+                    `;
+                    const btn = document.createElement("button");
+                    btn.className = "secondary";
+                    btn.textContent = "兑换";
+                    btn.addEventListener("click", () => redeemItem(item.name, item.price));
+                    row.appendChild(btn);
+                    elements.shopList.appendChild(row);
+                });
+
+                const toolText = `折扣券 x${state.discountTokens}，透骰券 x${state.forceRevealDie}`;
+                const bagText =
+                    state.inventory.length === 0 ? "已兑换：暂无" : `已兑换：${state.inventory.join("、")}`;
+                elements.inventoryList.textContent = `${bagText} | 道具库存：${toolText}`;
+            }
+
+            function updateControls() {
+                elements.revealBtn.disabled = state.phase !== "betting";
+                elements.nextRoundBtn.disabled = state.phase !== "revealed";
+                elements.clearBetsBtn.disabled = state.phase !== "betting";
+            }
+
+            function updateUI() {
+                elements.balance.textContent = Math.floor(state.balance);
+                elements.cash.textContent = Math.floor(state.cash);
+                elements.round.textContent = state.round;
+                elements.feeRate.textContent = Math.round(CASHOUT_FEE_RATE * 100);
+                updateDiceUI();
+                updateBetsUI();
+                updateInfoUI();
+                updateShopUI();
+                updateControls();
+                updateCashoutHint();
+            }
+
+            function bindEvents() {
+                document.querySelectorAll(".chip-btn").forEach((btn) => {
+                    btn.addEventListener("click", () => {
+                        elements.betAmount.value = btn.dataset.amount;
+                    });
+                });
+
+                document.querySelectorAll(".bet-btn").forEach((btn) => {
+                    btn.addEventListener("click", () => {
+                        const type = btn.dataset.type;
+                        const odds = btn.dataset.odds;
+                        const label = btn.dataset.label;
+                        const value = btn.dataset.value ? Number(btn.dataset.value) : undefined;
+                        placeBet(type, label, odds, value);
+                    });
+                });
+
+                elements.revealBtn.addEventListener("click", revealRound);
+                elements.nextRoundBtn.addEventListener("click", startRound);
+                elements.clearBetsBtn.addEventListener("click", clearBets);
+                elements.cashoutBtn.addEventListener("click", cashout);
+                elements.cashoutAmount.addEventListener("input", updateCashoutHint);
+            }
+
+            function buildDynamicBets() {
+                Object.keys(sumOdds)
+                    .map(Number)
+                    .sort((a, b) => a - b)
+                    .forEach((sum) => {
+                        const odds = sumOdds[sum];
+                        const btn = document.createElement("button");
+                        btn.className = "bet-btn";
+                        btn.dataset.type = "sum";
+                        btn.dataset.value = sum;
+                        btn.dataset.odds = odds;
+                        btn.dataset.label = `点数 ${sum}`;
+                        btn.textContent = `${sum} (${odds}x)`;
+                        elements.sumBets.appendChild(btn);
+                    });
+
+                for (let i = 1; i <= 6; i += 1) {
+                    const btn = document.createElement("button");
+                    btn.className = "bet-btn";
+                    btn.dataset.type = "pair";
+                    btn.dataset.value = i;
+                    btn.dataset.odds = 8;
+                    btn.dataset.label = `对子 ${i}-${i}`;
+                    btn.textContent = `${i}-${i} (8x)`;
+                    elements.pairBets.appendChild(btn);
+                }
+            }
+
+            buildDynamicBets();
+            bindEvents();
+            startRound();
+
+        </script>
+    </body>
+</html>
