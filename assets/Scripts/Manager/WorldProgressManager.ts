@@ -11,6 +11,7 @@ import {
     WORLD_MAP_CONFIGS,
     WORLD_STORY_TASKS,
     getWorldDeviceConfig,
+    getWorldDeviceUnlockPrice,
     getWorldIngredientConfig,
     getWorldMapConfig,
     getWorldStoryTask
@@ -184,6 +185,11 @@ export class WorldProgressManager extends Component {
         return state.taskProgress[taskId];
     }
 
+    public getDailyTaskProgress(taskId: string): number {
+        if (!taskId) return 0;
+        return this.progress.currentDayState.taskProgress[taskId] || 0;
+    }
+
     public completeStoryTask(taskId: string): void {
         if (!taskId || this.isStoryTaskCompleted(taskId)) return;
         const task = getWorldStoryTask(taskId);
@@ -209,6 +215,17 @@ export class WorldProgressManager extends Component {
         return this.progress.storyFlags[`task.completed.${taskId}`] === true;
     }
 
+    public getStoryFlag(flag: string): boolean {
+        if (!flag) return false;
+        return this.progress.storyFlags[flag] === true;
+    }
+
+    public setStoryFlag(flag: string, value: boolean = true): void {
+        if (!flag) return;
+        this.progress.storyFlags[flag] = value;
+        this.saveProgress();
+    }
+
     public unlockDevice(deviceId: string, spendMoney: boolean = true): boolean {
         if (!deviceId) return false;
         if (this.progress.unlockedDevices.includes(deviceId)) return true;
@@ -216,7 +233,8 @@ export class WorldProgressManager extends Component {
         if (!config) return false;
 
         if (!this.meetsDeviceCondition(config)) return false;
-        if (spendMoney && !this.spendMoney(config.price)) return false;
+        const unlockPrice = getWorldDeviceUnlockPrice(deviceId);
+        if (spendMoney && unlockPrice > 0 && !this.spendMoney(unlockPrice)) return false;
 
         this.progress.unlockedDevices.push(deviceId);
         this.saveProgress();

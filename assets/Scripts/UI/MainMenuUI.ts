@@ -11,6 +11,7 @@ import { DisplayManager, DisplayResolution } from '../Utils/DisplayManager';
 import { SceneRouteService } from '../Manager/SceneRouteService';
 import { WorldProgressManager } from '../Manager/WorldProgressManager';
 import { FeatureGate } from '../Manager/FeatureGate';
+import { WorldMapId, WORLD_MAP_CONFIGS } from '../Data/WorldRuntimeConfig';
 const { ccclass, property } = _decorator;
 
 /**
@@ -468,22 +469,15 @@ export class MainMenuUI extends Component {
      */
     public onStartGame() {
         if (this.isLoadingScene) return;
-        this.isLoadingScene = true;
 
         if (FeatureGate.ENABLE_WORLD_SINGLE_FLOW) {
-            const world = WorldProgressManager.instance || WorldProgressManager.ensureInstance();
-            world.resetProgress();
-
-            const inventory = InventoryManager.instance;
-            if (inventory) {
-                inventory.setWallet(world.progress.totalMoney);
-                inventory.initLevel(1);
-                inventory.saveLevelState();
-            }
-
-            this.scheduleOnce(() => SceneRouteService.goShop(), 0.2);
+            WorldProgressManager.instance || WorldProgressManager.ensureInstance();
+            this.pendingWorldReset = true;
+            this.showLevelSelectPanel();
             return;
         }
+
+        this.isLoadingScene = true;
 
         console.log('[MainMenuUI] 开始游戏 - 显示关卡选择');
         this.isNewGame = true;  // 标记为新游戏
@@ -555,19 +549,15 @@ export class MainMenuUI extends Component {
      */
     private continueFromProgress() {
         if (this.isLoadingScene) return;
-        this.isLoadingScene = true;
 
         if (FeatureGate.ENABLE_WORLD_SINGLE_FLOW) {
-            const world = WorldProgressManager.instance || WorldProgressManager.ensureInstance();
-            const inventory = InventoryManager.instance;
-            if (inventory) {
-                inventory.setWallet(world.progress.totalMoney);
-                inventory.initLevel(1);
-                inventory.saveLevelState();
-            }
-            this.scheduleOnce(() => SceneRouteService.goShop(), 0.2);
+            WorldProgressManager.instance || WorldProgressManager.ensureInstance();
+            this.pendingWorldReset = false;
+            this.showLevelSelectPanel();
             return;
         }
+
+        this.isLoadingScene = true;
 
         const progressManager = GameProgressManager.instance;
         if (progressManager) {
@@ -1480,6 +1470,8 @@ export class MainMenuUI extends Component {
     
     // ==================== 关卡选择面板 ====================
     private levelSelectPanel: Node = null;
+    private sceneCityMapPanelBound: boolean = false;
+    private pendingWorldReset: boolean = false;
     
     /**
      * 显示关卡选择面板
@@ -1487,6 +1479,9 @@ export class MainMenuUI extends Component {
     private showLevelSelectPanel() {
         if (!this.levelSelectPanel) {
             this.createLevelSelectPanel();
+        }
+        if (!this.levelSelectPanel) {
+            return;
         }
         this.levelSelectPanel.active = true;
         this.updateLevelCards();
@@ -1506,9 +1501,15 @@ export class MainMenuUI extends Component {
             if (opacity) {
                 tween(opacity).to(0.2, { opacity: 0 }).call(() => {
                     this.levelSelectPanel.active = false;
+                    if (!this.isLoadingScene) {
+                        this.pendingWorldReset = false;
+                    }
                 }).start();
             } else {
                 this.levelSelectPanel.active = false;
+                if (!this.isLoadingScene) {
+                    this.pendingWorldReset = false;
+                }
             }
         }
     }
@@ -1517,6 +1518,19 @@ export class MainMenuUI extends Component {
      * 创建关卡选择面板（现代配色设计）
      */
     private createLevelSelectPanel() {
+        const scenePanel = this.findNodeByPaths([
+            'MainMenuRoot/OverlayRoot/LevelPanel',
+            'OverlayRoot/LevelPanel',
+            'LevelPanel'
+        ]);
+        if (scenePanel?.getChildByName('CityMapModalRoot')) {
+            this.levelSelectPanel = scenePanel;
+            this.bindSceneCityMapPanel();
+            this.updateCityMapScenePanel();
+            this.levelSelectPanel.active = false;
+            return;
+        }
+
         const canvas = this.getOverlayHost();
         if (!canvas) return;
         
@@ -1826,6 +1840,11 @@ export class MainMenuUI extends Component {
      */
     private updateLevelCards() {
         if (!this.levelSelectPanel) return;
+
+        if (this.isSceneCityMapPanel()) {
+            this.updateCityMapScenePanel();
+            return;
+        }
         
         const cardsContainer = this.levelSelectPanel.getChildByName('CardsContainer');
         if (!cardsContainer) return;
@@ -1943,6 +1962,166 @@ export class MainMenuUI extends Component {
         this.scheduleOnce(() => {
             SceneRouteService.goShop();
         }, 0.3);
+    }
+
+    private isSceneCityMapPanel(): boolean {
+        return !!this.levelSelectPanel?.getChildByName('CityMapModalRoot');
+    }
+
+    private bindSceneCityMapPanel() {
+        if (!this.levelSelectPanel || this.sceneCityMapPanelBound) {
+            return;
+        }
+
+        const cityMapRoot = this.levelSelectPanel.getChildByName('CityMapModalRoot');
+        const mask = cityMapRoot?.getChildByName('Mask');
+        const closeButton = cityMapRoot?.getChildByPath('PanelShell/HeaderBar/CloseButton');
+        const streetDistrict = cityMapRoot?.getChildByPath('PanelShell/MapBoard/StreetDistrict');
+        const gbdDistrict = cityMapRoot?.getChildByPath('PanelShell/MapBoard/GbdDistrict');
+
+        mask?.on(Node.EventType.TOUCH_END, () => this.hideLevelSelectPanel(), this);
+        closeButton?.on(Button.EventType.CLICK, () => this.hideLevelSelectPanel(), this);
+        streetDistrict?.on(Button.EventType.CLICK, () => this.onWorldMapDistrictClick('street'), this);
+        gbdDistrict?.on(Button.EventType.CLICK, () => this.onWorldMapDistrictClick('gbd'), this);
+
+        this.sceneCityMapPanelBound = true;
+    }
+
+    private updateCityMapScenePanel() {
+        const cityMapRoot = this.levelSelectPanel?.getChildByName('CityMapModalRoot');
+        const panelShell = cityMapRoot?.getChildByName('PanelShell');
+        const summaryPanel = panelShell?.getChildByName('SummaryPanel');
+        const mapBoard = panelShell?.getChildByName('MapBoard');
+        if (!summaryPanel || !mapBoard) {
+            return;
+        }
+
+        const world = WorldProgressManager.instance || WorldProgressManager.ensureInstance();
+        if (!this.pendingWorldReset) {
+            world.refreshMapUnlocksByMoney(false);
+        }
+
+        const displayMoney = this.pendingWorldReset ? 1000 : world.progress.totalMoney;
+        const displayCurrentMapId: WorldMapId = this.pendingWorldReset ? 'street' : world.progress.currentMapId;
+
+        const walletValue = summaryPanel.getChildByName('WalletValue')?.getComponent(Label);
+        if (walletValue) {
+            walletValue.string = `${displayMoney}`;
+        }
+
+        const currentValue = summaryPanel.getChildByName('CurrentValue')?.getComponent(Label);
+        if (currentValue) {
+            currentValue.string = this.getWorldMapName(displayCurrentMapId);
+        }
+
+        const unlockHint = summaryPanel.getChildByName('UnlockHint')?.getComponent(Label);
+        if (unlockHint) {
+            const nextLockedMap = WORLD_MAP_CONFIGS.find((config) => displayMoney < config.unlockMoney);
+            unlockHint.string = nextLockedMap
+                ? `下一片区域：${nextLockedMap.mapName}，解锁条件 ${nextLockedMap.unlockMoney} 资金。旧 Level2-6 入口已弃用。`
+                : '全部区域已解锁。旧 Level2-6 入口已弃用，请从城市区域进入营业。';
+        }
+
+        this.updateWorldDistrictCard(mapBoard.getChildByName('StreetDistrict'), {
+            unlocked: true,
+            current: displayCurrentMapId === 'street',
+            conditionText: '默认开放区域',
+            actionText: '点击进入营业'
+        });
+
+        const gbdConfig = WORLD_MAP_CONFIGS.find((config) => config.mapId === 'gbd');
+        const gbdUnlocked = this.pendingWorldReset ? false : world.isMapUnlocked('gbd');
+        this.updateWorldDistrictCard(mapBoard.getChildByName('GbdDistrict'), {
+            unlocked: gbdUnlocked,
+            current: displayCurrentMapId === 'gbd',
+            conditionText: gbdUnlocked ? '解锁条件已满足' : `解锁门槛 ${gbdConfig?.unlockMoney ?? 0} 资金`,
+            actionText: gbdUnlocked ? '点击切换并进入' : '暂不可进入'
+        });
+    }
+
+    private updateWorldDistrictCard(
+        card: Node | null,
+        options: { unlocked: boolean; current: boolean; conditionText: string; actionText: string; }
+    ) {
+        if (!card) {
+            return;
+        }
+
+        const button = card.getComponent(Button);
+        if (button) {
+            button.interactable = options.unlocked;
+        }
+
+        const sprite = card.getComponent(Sprite);
+        if (sprite) {
+            if (options.current) {
+                sprite.color = options.unlocked ? new Color(236, 205, 126, 255) : new Color(182, 198, 216, 255);
+            } else if (options.unlocked) {
+                sprite.color = new Color(246, 194, 107, 255);
+            } else {
+                sprite.color = new Color(181, 204, 230, 255);
+            }
+        }
+
+        const statusChip = card.getChildByName('StatusChip')?.getComponent(Sprite);
+        if (statusChip) {
+            statusChip.color = options.current
+                ? new Color(150, 84, 68, 255)
+                : (options.unlocked ? new Color(46, 125, 87, 255) : new Color(106, 118, 135, 255));
+        }
+
+        const statusLabel = card.getChildByPath('StatusChip/Label')?.getComponent(Label);
+        if (statusLabel) {
+            statusLabel.string = options.current ? '当前区域' : (options.unlocked ? '已解锁' : '未解锁');
+        }
+
+        const conditionLabel = card.getChildByName('ConditionLabel')?.getComponent(Label);
+        if (conditionLabel) {
+            conditionLabel.string = options.conditionText;
+        }
+
+        const actionLabel = card.getChildByName('ActionLabel')?.getComponent(Label);
+        if (actionLabel) {
+            actionLabel.string = options.actionText;
+            actionLabel.color = options.unlocked
+                ? new Color(91, 75, 60, 255)
+                : new Color(97, 111, 128, 255);
+        }
+    }
+
+    private onWorldMapDistrictClick(mapId: WorldMapId) {
+        if (this.isLoadingScene) {
+            return;
+        }
+
+        const world = WorldProgressManager.instance || WorldProgressManager.ensureInstance();
+        if (this.pendingWorldReset) {
+            world.resetProgress();
+            this.pendingWorldReset = false;
+        }
+
+        world.refreshMapUnlocksByMoney(false);
+        if (!world.isMapUnlocked(mapId)) {
+            this.updateCityMapScenePanel();
+            return;
+        }
+
+        world.enterMap(mapId);
+
+        const inventory = InventoryManager.instance;
+        if (inventory) {
+            inventory.setWallet(world.progress.totalMoney);
+            inventory.initLevel(1);
+            inventory.saveLevelState();
+        }
+
+        this.isLoadingScene = true;
+        this.hideLevelSelectPanel();
+        this.scheduleOnce(() => SceneRouteService.goShop(), 0.25);
+    }
+
+    private getWorldMapName(mapId: WorldMapId): string {
+        return WORLD_MAP_CONFIGS.find((config) => config.mapId === mapId)?.mapName ?? mapId;
     }
     
     // ==================== 存档选择面板 ====================

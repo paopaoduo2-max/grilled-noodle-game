@@ -13,6 +13,7 @@ import {
     IngredientFlavorConfig,
     WORLD_DEVICE_CONFIGS,
     WORLD_INGREDIENT_CONFIGS,
+    getWorldDeviceUnlockPrice,
     getWorldMapConfig
 } from '../Data/WorldRuntimeConfig';
 
@@ -1261,6 +1262,7 @@ export class ShopController extends Component {
 
     private onBuyDevice(deviceId: string): void {
         const world = WorldProgressManager.instance || WorldProgressManager.ensureInstance();
+        const deviceConfig = WORLD_DEVICE_CONFIGS.find((config) => config.deviceId === deviceId);
         if (world.progress.unlockedDevices.includes(deviceId)) {
             this.setWorldStatus('该设备已购买');
             return;
@@ -1272,8 +1274,10 @@ export class ShopController extends Component {
             return;
         }
 
+        const unlockPrice = getWorldDeviceUnlockPrice(deviceId);
         this.syncInventoryWallet();
-        this.setWorldStatus(`设备已购入：${deviceId}`);
+        const deviceName = deviceConfig?.name || deviceId;
+        this.setWorldStatus(unlockPrice === 0 ? `设备已免费领取：${deviceName}` : `设备已购入：${deviceName}`);
         this.refreshWorldShopView();
     }
 
@@ -1334,7 +1338,9 @@ export class ShopController extends Component {
                 const label = btn?.getComponentInChildren(Label);
                 if (!btn || !label) return;
                 const bought = world.progress.unlockedDevices.includes(config.deviceId);
-                label.string = bought ? `✅ ${config.name}（已购）` : `🛠 ${config.name} - ${config.price}`;
+                const unlockPrice = getWorldDeviceUnlockPrice(config.deviceId);
+                const priceLabel = unlockPrice === 0 ? '免费领取' : `${unlockPrice}`;
+                label.string = bought ? `✅ ${config.name}（已购）` : `🛠 ${config.name} - ${priceLabel}`;
                 const sprite = btn.getComponent(Sprite);
                 if (sprite) {
                     sprite.color = bought ? new Color(124, 131, 140, 255) : new Color(187, 125, 70, 255);

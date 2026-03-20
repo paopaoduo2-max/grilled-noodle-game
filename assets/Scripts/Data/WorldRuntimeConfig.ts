@@ -35,6 +35,8 @@ export interface StoryTaskRewards {
 export interface StoryTaskConfig {
     taskId: string;
     lineType: StoryLineType;
+    title?: string;
+    briefing?: string;
     triggerWindow: StoryTaskTriggerWindow;
     orderRequirements: StoryTaskOrderRequirements;
     rewards: StoryTaskRewards;
@@ -45,6 +47,7 @@ export interface DeviceConfig {
     deviceId: string;
     name: string;
     price: number;
+    starterFree?: boolean;
     unlockCondition: {
         mapId?: WorldMapId;
         minMoney?: number;
@@ -130,7 +133,7 @@ export const WORLD_MAP_CONFIGS: MapConfig[] = [
         mapId: 'gbd',
         mapName: 'GBD商务区',
         description: '商务客流更多，客单价提升。',
-        unlockMoney: 4500,
+        unlockMoney: 2000,
         revenueMultiplier: 1.2,
         visualProfile: {
             bgTint: { r: 118, g: 184, b: 240 },
@@ -154,6 +157,7 @@ export const WORLD_DEVICE_CONFIGS: DeviceConfig[] = [
         deviceId: 'double_griddle',
         name: '双联烤板',
         price: 1200,
+        starterFree: true,
         unlockCondition: { mapId: 'street', minMoney: 1000 },
         effects: { productionMultiplier: 1.2 }
     },
@@ -161,6 +165,7 @@ export const WORLD_DEVICE_CONFIGS: DeviceConfig[] = [
         deviceId: 'auto_brush',
         name: '自动刷酱器',
         price: 1800,
+        starterFree: true,
         unlockCondition: { mapId: 'street', minMoney: 1500 },
         effects: { speedMultiplier: 1.12, errorToleranceBonus: 0.08 }
     },
@@ -216,6 +221,8 @@ export const WORLD_STORY_TASKS: StoryTaskConfig[] = [
     {
         taskId: 'main_street_001',
         lineType: 'main',
+        title: '王师傅盯摊第一天',
+        briefing: '王师傅嘴上不饶人，但愿意先帮你盯着摊。先做几份清口味，别把第一天做砸。',
         triggerWindow: { mapId: 'street', dayFrom: 1 },
         orderRequirements: { orderCount: 4, flavorTags: ['fresh'] },
         rewards: { money: 300, setStoryFlags: ['story.main.street.001'] },
@@ -224,6 +231,8 @@ export const WORLD_STORY_TASKS: StoryTaskConfig[] = [
     {
         taskId: 'main_street_002',
         lineType: 'main',
+        title: '街口肉香试单',
+        briefing: '王师傅让你把香肠味顶上去，看看街口老客愿不愿意继续排队。',
         triggerWindow: { mapId: 'street', dayFrom: 3 },
         orderRequirements: { orderCount: 5, flavorTags: ['meat'] },
         rewards: {
@@ -236,6 +245,8 @@ export const WORLD_STORY_TASKS: StoryTaskConfig[] = [
     {
         taskId: 'main_gbd_001',
         lineType: 'main',
+        title: '商务区开张试水',
+        briefing: '进了 GBD，先把高客单价单子站稳，别被白领客流压住。',
         triggerWindow: { mapId: 'gbd', dayFrom: 5 },
         orderRequirements: { orderCount: 6, flavorTags: ['premium'] },
         rewards: { money: 900, setStoryFlags: ['story.main.gbd.001'] }
@@ -243,6 +254,8 @@ export const WORLD_STORY_TASKS: StoryTaskConfig[] = [
     {
         taskId: 'side_street_001',
         lineType: 'side',
+        title: '学生社团加单',
+        briefing: '隔壁学生社团临时来加单，先用几份基础单练练出餐节奏。',
         triggerWindow: { mapId: 'street', dayFrom: 1 },
         orderRequirements: { orderCount: 3 },
         rewards: { money: 220, unlockIngredientIds: ['flavor_onion'] },
@@ -251,6 +264,8 @@ export const WORLD_STORY_TASKS: StoryTaskConfig[] = [
     {
         taskId: 'side_street_002',
         lineType: 'side',
+        title: '香菜偏爱委托',
+        briefing: '有个老客点名要香菜味，你要学会把特别口味做稳。',
         triggerWindow: { mapId: 'street', dayFrom: 2 },
         orderRequirements: { orderCount: 4, flavorTags: ['special'] },
         rewards: { money: 260, unlockIngredientIds: ['flavor_cilantro'] }
@@ -258,6 +273,8 @@ export const WORLD_STORY_TASKS: StoryTaskConfig[] = [
     {
         taskId: 'side_gbd_001',
         lineType: 'side',
+        title: '白领加肉单',
+        briefing: '商务区白领更认肉味，先拿几单熟悉他们的偏好。',
         triggerWindow: { mapId: 'gbd', dayFrom: 5 },
         orderRequirements: { orderCount: 4, flavorTags: ['meat'] },
         rewards: { money: 420, unlockIngredientIds: ['flavor_bacon'] }
@@ -277,6 +294,12 @@ export function getWorldMapConfig(mapId: string): MapConfig | null {
 
 export function getWorldDeviceConfig(deviceId: string): DeviceConfig | null {
     return WORLD_DEVICE_CONFIGS.find((config) => config.deviceId === deviceId) || null;
+}
+
+export function getWorldDeviceUnlockPrice(deviceId: string): number {
+    const config = getWorldDeviceConfig(deviceId);
+    if (!config) return 0;
+    return config.starterFree ? 0 : config.price;
 }
 
 export function getWorldIngredientConfig(ingredientId: string): IngredientFlavorConfig | null {

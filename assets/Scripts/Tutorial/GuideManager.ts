@@ -5,6 +5,7 @@ import { IngredientType } from '../Data/GameConfig';
 import { EventManager } from '../Utils/EventManager';
 import { GuideEvents } from './GuideEvents';
 import { CookingControllerV2 } from '../Game/CookingControllerV2';
+import { SceneRouteService } from '../Manager/SceneRouteService';
 
 const { ccclass } = _decorator;
 
@@ -41,11 +42,13 @@ export class GuideManager extends Component {
     private guideLabelTransform: UITransform | null = null;
     private guideBubbleGraphics: Graphics | null = null;
     private guideBubbleTransform: UITransform | null = null;
+    private guideSkipButton: Button | null = null;
 
     private lotteryButtonStates: Array<{ node: Node; active: boolean; interactable?: boolean; enabled?: boolean }> = [];
 
     private lastShopCounts: Record<string, number> = {};
     private sessionStarted = false;
+    private readonly mentorName = '王师傅';
 
     onLoad() {
         if (GuideManager.instance && GuideManager.instance !== this) {
@@ -101,7 +104,7 @@ export class GuideManager extends Component {
         EventManager.Instance.on(GuideEvents.COOKING_ENTER, this.onCookingEnter);
         EventManager.Instance.on(GuideEvents.COOKING_ACTION, this.onCookingActionEvent);
         EventManager.Instance.on(GuideEvents.COOKING_COMPLETE, this.onCookingComplete);
-        EventManager.Instance.on(GuideEvents.GUIDE_SKIP, this.skipTutorial.bind(this));
+        EventManager.Instance.on(GuideEvents.GUIDE_SKIP, this.onGuideSkip);
     }
 
     private unbindEvents() {
@@ -116,6 +119,7 @@ export class GuideManager extends Component {
         EventManager.Instance.off(GuideEvents.COOKING_ENTER, this.onCookingEnter);
         EventManager.Instance.off(GuideEvents.COOKING_ACTION, this.onCookingActionEvent);
         EventManager.Instance.off(GuideEvents.COOKING_COMPLETE, this.onCookingComplete);
+        EventManager.Instance.off(GuideEvents.GUIDE_SKIP, this.onGuideSkip);
     }
 
     private refreshActiveState() {
@@ -141,125 +145,128 @@ export class GuideManager extends Component {
             {
                 id: 'shop_intro',
                 scene: 'ShopScene',
-                text: '今天第一天，先采购基础食材。\n点击食材卡片上的 “+” 开始选购。',
+                text: '南方来的小子，先别慌开火。\n我是王师傅，你先照着买料，边做边学，不顺手就直接跳过教学。',
                 minStay: 1.2
             },
             {
                 id: 'shop_required',
                 scene: 'ShopScene',
-                text: '至少买：面饼、鸡蛋、香肠、洋葱、香菜。\n带 🔪 的食材需要备菜处理。',
+                text: '起手别整花活，先把面饼、鸡蛋、香肠、洋葱、香菜备齐。\n带 🔪 的料后面去备菜，今天我只动嘴不动手。',
                 expectShopRequired: true,
                 minStay: 1.2,
-                mismatchHint: '先把必需食材选齐，再点击开始营业。',
-                autoSkip: () => this.hasRequiredShopItems()
+                mismatchHint: '料还没齐。别怕慢，缺啥补啥，买错了也不耽误你继续做。',
+                autoSkip: () => this.hasRequiredShopItems(),
+                praise: '行，基本盘先稳住。'
             },
             {
                 id: 'shop_confirm',
                 scene: 'ShopScene',
-                text: '选好了？点击“购买并开始营业”进入备菜。',
+                text: '买够了就走流程，点“购买并开始营业”。\n你也可以现在跳过教学，直接进正式营业。',
                 expectShopConfirm: true,
                 minStay: 1.0
             },
             {
                 id: 'processing_intro',
                 scene: 'ProcessingScene',
-                text: '到备菜啦！把需要处理的食材放到砧板上切碎。',
+                text: '进后厨了。洋葱和香菜该切就切，我在旁边盯着，不会锁你操作。',
                 minStay: 1.0
             },
             {
                 id: 'processing_onion',
                 scene: 'ProcessingScene',
-                text: '先处理洋葱：点洋葱 → 上砧板 → 切 3 下。',
+                text: '先拿洋葱练手：上砧板，切够三下就算过。',
                 expectProcessingType: 'onion',
                 minStay: 1.0,
-                autoSkip: () => !this.hasRawIngredient(IngredientType.ONION)
+                autoSkip: () => !this.hasRawIngredient(IngredientType.ONION),
+                mismatchHint: '别急，切错了就再来一份，今天不扣分。'
             },
             {
                 id: 'processing_cilantro',
                 scene: 'ProcessingScene',
-                text: '再处理香菜：点香菜 → 上砧板 → 切碎。',
+                text: '再把香菜过一遍刀。东北客人嘴刁，配料得利索。',
                 expectProcessingType: 'cilantro',
                 minStay: 1.0,
-                autoSkip: () => !this.hasRawIngredient(IngredientType.CILANTRO)
+                autoSkip: () => !this.hasRawIngredient(IngredientType.CILANTRO),
+                mismatchHint: '香菜没切好也没事，重新放上砧板继续。'
             },
             {
                 id: 'processing_complete',
                 scene: 'ProcessingScene',
-                text: '备菜完成！点击“开始营业”去烹饪。',
+                text: '备菜差不多了，点“开始营业”上炉。真正的手感得到铁板上练。',
                 expectProcessingComplete: true,
                 minStay: 1.0
             },
             {
                 id: 'cooking_intro',
                 scene: 'Level1CookingScene',
-                text: '开始上炉！先拿油壶给铁板喷油。',
+                text: '上炉第一件事先润锅。喷油后再落面，动作慢点没事。',
                 expectCookingAction: ['oil_applied'],
                 minStay: 1.0,
-                mismatchHint: '先喷油，再放面饼。'
+                mismatchHint: '先喷油，再放面饼。做废了就扔掉重来，别硬交。'
             },
             {
                 id: 'cooking_dough',
                 scene: 'Level1CookingScene',
-                text: '把面饼放到有油渍的位置。',
+                text: '把面饼落到有油的位置，别甩偏了。',
                 expectCookingAction: ['dough_placed'],
                 minStay: 1.0
             },
             {
                 id: 'cooking_egg',
                 scene: 'Level1CookingScene',
-                text: '打一个鸡蛋在面饼上。',
+                text: '先给它打一颗蛋，起码得像个样子。',
                 expectCookingAction: ['egg_added'],
                 minStay: 1.0
             },
             {
                 id: 'cooking_flip',
                 scene: 'Level1CookingScene',
-                text: '拿起铲子，翻面。',
+                text: '铲子拿稳，翻面别怂。',
                 expectCookingAction: ['flipped'],
                 minStay: 1.0
             },
             {
                 id: 'cooking_sauce',
                 scene: 'Level1CookingScene',
-                text: '刷上酱料。',
+                text: '刷酱。东北摊子讲究这个味儿。',
                 expectCookingAction: ['sauce_applied'],
                 minStay: 1.0
             },
             {
                 id: 'cooking_toppings',
                 scene: 'Level1CookingScene',
-                text: '加配料：香肠 / 洋葱 / 香菜。',
+                text: '把香肠、洋葱、香菜补齐。做错了我只提醒，你自己重来。',
                 expectCookingAction: ['sausage_added', 'onion_added', 'cilantro_added'],
                 minStay: 1.0
             },
             {
                 id: 'cooking_roll',
                 scene: 'Level1CookingScene',
-                text: '用铲子卷起。',
+                text: '差不多了就卷。别怕慢，卷散了还能再做。',
                 expectCookingAction: ['rolled'],
                 minStay: 1.0
             },
             {
                 id: 'cooking_cut',
                 scene: 'Level1CookingScene',
-                text: '切三刀。',
+                text: '切三刀，别省这手工。',
                 expectCookingAction: ['cut'],
                 minStay: 1.0
             },
             {
                 id: 'cooking_pack',
                 scene: 'Level1CookingScene',
-                text: '点击面饼打包。',
+                text: '点面饼打包。要是配料不对，我只吐槽，你继续返工。',
                 expectCookingAction: ['packed'],
                 minStay: 1.0
             },
             {
                 id: 'cooking_deliver',
                 scene: 'Level1CookingScene',
-                text: '完成交付，就算过关啦！',
+                text: '交出去这单，你这摊子就算正式开张。',
                 expectCookingAction: ['delivered'],
                 minStay: 1.0,
-                praise: '✅ 做得好！第一份烤冷面完成！'
+                praise: '✅ 行，第一份算立住了。'
             }
         ];
     }
@@ -311,6 +318,26 @@ export class GuideManager extends Component {
             bubbleNode.addChild(labelNode);
             panel.addChild(bubbleNode);
 
+            const skipNode = new Node('GuideSkipButton');
+            const skipTransform = skipNode.addComponent(UITransform);
+            skipTransform.setContentSize(110, 34);
+            const skipGraphics = skipNode.addComponent(Graphics);
+            skipGraphics.fillColor = new Color(255, 183, 77, 235);
+            skipGraphics.roundRect(-55, -17, 110, 34, 10);
+            skipGraphics.fill();
+            const skipButton = skipNode.addComponent(Button);
+
+            const skipLabelNode = new Node('GuideSkipLabel');
+            const skipLabel = skipLabelNode.addComponent(Label);
+            skipLabel.string = '跳过教学';
+            skipLabel.fontSize = 16;
+            skipLabel.color = new Color(54, 33, 12, 255);
+            skipLabelNode.setPosition(0, 0, 0);
+            skipNode.addChild(skipLabelNode);
+            skipNode.setPosition(180, -45, 0);
+            skipNode.on(Button.EventType.CLICK, this.onGuideSkip, this);
+            panel.addChild(skipNode);
+
             panel.setPosition(-250, 250, 0);
             canvas.addChild(panel);
 
@@ -320,6 +347,7 @@ export class GuideManager extends Component {
             this.guideLabelTransform = labelTransform ?? null;
             this.guideBubbleGraphics = bubbleGraphics;
             this.guideBubbleTransform = bubbleTransform;
+            this.guideSkipButton = skipButton;
             this.drawGuideBubble(520, 140);
         } else {
             this.guidePanel = panel;
@@ -334,6 +362,8 @@ export class GuideManager extends Component {
             } else {
                 this.guideLabel = null;
             }
+            const skipNode = panel.getChildByName('GuideSkipButton');
+            this.guideSkipButton = skipNode ? skipNode.getComponent(Button) : null;
         }
     }
 
@@ -356,7 +386,7 @@ export class GuideManager extends Component {
             }
         }
         if (this.guideLabel) {
-            const content = `老王：${step.text}`;
+            const content = `${this.mentorName}：${step.text}`;
             this.guideLabel.string = content;
             this.updateGuideLayout(content);
         }
@@ -486,19 +516,32 @@ export class GuideManager extends Component {
         this.hideGuide();
         this.setLotteryButtonsEnabled(true);
         const controller = this.findCookingController();
-        if (controller) {
+        if (controller && this.currentScene === 'Level1CookingScene') {
             controller.hideNPCDialogue();
             controller.startCustomerSystem();
+            return;
         }
+        SceneRouteService.goBusiness();
     }
 
     private showHint(text: string) {
         if (this.guideLabel) {
-            const content = `老王：${text}`;
+            const content = `${this.mentorName}：${text}`;
             this.guideLabel.string = content;
             this.updateGuideLayout(content);
         }
         this.updateCookingNPC(text);
+    }
+
+    public showDialogueByKey(key: string) {
+        const textMap: Record<string, string> = {
+            verify_burnt: '这张火大了，别硬卖。扔掉重做，手稳一点。',
+            verify_no_egg: '你这南方摊子也得守规矩，这份没打蛋，补上再说。',
+            verify_no_sauce: '酱还没刷，味儿没立住。补一遍继续做。',
+            verify_no_condiments: '料太单薄了，至少再补两样调料。做坏了就返工。'
+        };
+        const text = textMap[key] || '手上这份还差点意思，照提示补一补就行。';
+        this.showHint(text);
     }
 
     private updateGuideLayout(text: string) {
@@ -510,14 +553,19 @@ export class GuideManager extends Component {
         const totalLines = Math.max(rawLines, estimateWrap);
         const targetWidth = 520;
         const targetHeight = Math.max(120, padding * 2 + totalLines * lineHeight + 6);
+        const panelHeight = targetHeight + 44;
 
         this.guideBubbleTransform.setContentSize(targetWidth, targetHeight);
         const panelTransform = this.guidePanel.getComponent(UITransform);
-        panelTransform?.setContentSize(targetWidth, targetHeight + 8);
+        panelTransform?.setContentSize(targetWidth, panelHeight);
 
         this.guideLabelTransform.setContentSize(targetWidth - padding * 2, targetHeight - padding * 2);
         if (this.guideLabelNode) {
             this.guideLabelNode.setPosition(-targetWidth / 2 + padding, targetHeight / 2 - padding, 0);
+        }
+        const skipNode = this.guideSkipButton?.node;
+        if (skipNode) {
+            skipNode.setPosition(180, -targetHeight / 2 - 18, 0);
         }
         this.drawGuideBubble(targetWidth, targetHeight);
     }
@@ -553,11 +601,7 @@ export class GuideManager extends Component {
     }
 
     private updateLotteryButtonState() {
-        if (this.active && this.currentScene === 'Level1CookingScene') {
-            this.setLotteryButtonsEnabled(false);
-        } else {
-            this.setLotteryButtonsEnabled(true);
-        }
+        this.setLotteryButtonsEnabled(true);
     }
 
     private setLotteryButtonsEnabled(enabled: boolean) {
@@ -575,27 +619,7 @@ export class GuideManager extends Component {
             return;
         }
 
-        if (this.lotteryButtonStates.length > 0) return;
-        const canvas = find('Canvas');
-        if (!canvas) return;
-        const targets: Node[] = [];
-        this.collectNodesByName(canvas, ['LotteryStation', 'LotteryNextButton', 'LotteryHelpIcon'], targets);
-        targets.forEach(node => {
-            if (!node || !isValid(node)) return;
-            const btn = node.getComponent(Button);
-            this.lotteryButtonStates.push({
-                node,
-                active: node.active,
-                interactable: btn?.interactable,
-                enabled: btn?.enabled
-            });
-            if (btn) {
-                btn.interactable = false;
-                btn.enabled = false;
-            } else {
-                node.active = false;
-            }
-        });
+        // 非强制教学：不再在教程阶段禁用任何入口
     }
 
     private collectNodesByName(root: Node, names: string[], results: Node[]) {
@@ -666,6 +690,10 @@ export class GuideManager extends Component {
 
     private onProcessingNext = () => {
         this.handleProcessingComplete();
+    };
+
+    private onGuideSkip = () => {
+        this.skipTutorial();
     };
 
     private onCookingEnter = () => {

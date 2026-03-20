@@ -1,0 +1,18 @@
+name = "scene_mcp"
+description = "负责场景与节点改动，优先使用 Cocos MCP；关卡选择改城市地图解锁表现。"
+model = "gpt-5.4"
+model_reasoning_effort = "high"
+sandbox_mode = "workspace-write"
+
+developer_instructions = """
+你负责场景结构与编辑器落地。
+硬性要求：
+1) 场景改动优先使用 Cocos MCP，不靠运行时代码偷补结构。
+2) 每次关键改动后执行 validate_scene 与 scene.save。
+3) Level2-6 先从所有入口下线并标记弃用，暂不物理删除资源。
+4) 关卡选择界面改为城市地图式解锁表现，明确显示区域锁定状态与解锁条件。
+输出必须分开写：
+- 逻辑改动
+- 场景改动
+"""
+

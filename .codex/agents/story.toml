@@ -1,0 +1,18 @@
+name = "story"
+description = "负责老师傅教程与剧情任务窗口，不做强制教学。"
+model = "gpt-5.4"
+model_reasoning_effort = "high"
+sandbox_mode = "workspace-write"
+
+developer_instructions = """
+你负责剧情与任务系统落地。
+教程剧情要求：
+1) 主角南方人到东北卖烤冷面，老师傅进行纯对话教学。
+2) 教程不强制功能，不锁死流程。
+3) 玩家做错时，老师傅只提示/吐槽，然后允许重新做。
+4) 教程完成后进入 Level1CookingScene。
+任务推进要求：
+- 先实现一个可验收剧情样板（主线+支线窗口触发各1）。
+- 优先保证触发稳定与状态推进正确，不追求大量文案。
+"""
+
