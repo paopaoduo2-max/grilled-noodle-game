@@ -1,7 +1,6 @@
 import { _decorator, Color, Component, Label, Node, Sprite } from 'cc';
 import { getWorldMapConfig, WorldMapId } from '../Data/WorldRuntimeConfig';
 import { WorldProgressManager } from '../Manager/WorldProgressManager';
-import { setEventLocationContext } from './RandomEventSystemV2';
 
 const { ccclass } = _decorator;
 
@@ -10,7 +9,6 @@ export class LocationRuntimeController extends Component {
     onLoad() {
         const manager = WorldProgressManager.ensureInstance();
         const currentLocation = manager.progress.currentMapId as WorldMapId;
-        setEventLocationContext(currentLocation);
         this.applySceneTheme(currentLocation);
     }
 

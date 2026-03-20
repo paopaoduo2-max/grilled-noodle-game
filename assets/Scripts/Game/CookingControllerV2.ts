@@ -3138,7 +3138,7 @@ export class CookingControllerV2 extends Component {
         root.setSiblingIndex(9999);
 
         const mask = new Node('Mask');
-        const maskTransform = mask.addComponent(UITransform);
+        const maskTransform = mask.getComponent(UITransform) || mask.addComponent(UITransform);
         maskTransform.setContentSize(2000, 2000);
         const maskGraphics = mask.addComponent(Graphics);
         maskGraphics.fillColor = new Color(0, 0, 0, 160);
@@ -3148,7 +3148,7 @@ export class CookingControllerV2 extends Component {
         root.addChild(mask);
 
         const panel = new Node('Panel');
-        const panelTransform = panel.addComponent(UITransform);
+        const panelTransform = panel.getComponent(UITransform) || panel.addComponent(UITransform);
         panelTransform.setContentSize(720, 360);
         const panelGraphics = panel.addComponent(Graphics);
         panelGraphics.fillColor = new Color(30, 30, 30, 235);
@@ -3174,14 +3174,14 @@ export class CookingControllerV2 extends Component {
         contentLabel.lineHeight = 28;
         contentLabel.enableWrapText = true;
         contentLabel.overflow = Label.Overflow.CLAMP;
-        const contentTransform = contentNode.addComponent(UITransform);
+        const contentTransform = contentNode.getComponent(UITransform) || contentNode.addComponent(UITransform);
         contentTransform.setContentSize(640, 160);
         contentNode.setPosition(0, 20, 0);
         panel.addChild(contentNode);
 
         const createButton = (label: string, x: number, y: number, color: Color, onClick: () => void) => {
             const btnNode = new Node(`${label}Btn`);
-            const btnTransform = btnNode.addComponent(UITransform);
+            const btnTransform = btnNode.getComponent(UITransform) || btnNode.addComponent(UITransform);
             btnTransform.setContentSize(220, 54);
             const btnGraphics = btnNode.addComponent(Graphics);
             btnGraphics.fillColor = color;

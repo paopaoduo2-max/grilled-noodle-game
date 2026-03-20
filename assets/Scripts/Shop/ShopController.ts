@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Label, Button, Prefab, instantiate, ScrollView, Color, UITransform, Vec3, director, Graphics } from 'cc';
+import { _decorator, Component, Node, Label, Button, Prefab, instantiate, ScrollView, Color, UITransform, Vec3, director, Graphics, Sprite } from 'cc';
 import { SHOP_ITEMS, RICE_BUNDLE_SHOP_ITEMS, GUO_BAO_ROU_SHOP_ITEMS, RICE_BUNDLE_QUICK_BUY_CONFIG, GUO_BAO_ROU_QUICK_BUY_CONFIG, getRiceBundleQuickBuyTotalPrice, getGuoBaoRouQuickBuyTotalPrice, ShopItemData, getLevelData, QUICK_BUY_CONFIG, getQuickBuyTotalPrice } from '../Data/ShopData';
 import { InventoryManager } from '../Manager/InventoryManager';
 import { IngredientType } from '../Data/GameConfig';
@@ -1250,12 +1250,19 @@ export class ShopController extends Component {
     private buildWorldShopIngredientButtons(panel: Node): void {
         const world = WorldProgressManager.instance || WorldProgressManager.ensureInstance();
         const mapId = world.progress.currentMapId;
-        const list = WORLD_INGREDIENT_CONFIGS.filter((config) => !config.unlockCondition.mapId || config.unlockCondition.mapId === mapId);
-        list.forEach((config, index) => {
+        const baseItems = this.getWorldBaseShopItems(mapId);
+        const flavorItems = this.getWorldFlavorConfigs(mapId);
+        const totalList = baseItems.length > 0 ? baseItems : flavorItems;
+        totalList.forEach((entry, index) => {
             const btn = this.createWorldButton('', new Color(89, 151, 101, 255), 470, 58, 19);
-            btn.name = `Ingredient_${config.ingredientId}`;
+            if ('id' in entry) {
+                btn.name = `BaseItem_${entry.id}`;
+                btn.on(Button.EventType.CLICK, () => this.onBuyBaseShopItem(entry), this);
+            } else {
+                btn.name = `Ingredient_${entry.ingredientId}`;
+                btn.on(Button.EventType.CLICK, () => this.onBuyIngredient(entry), this);
+            }
             btn.setPosition(0, 116 - index * 72, 0);
-            btn.on(Button.EventType.CLICK, () => this.onBuyIngredient(config), this);
             panel.addChild(btn);
         });
     }
@@ -1307,6 +1314,24 @@ export class ShopController extends Component {
         this.refreshWorldShopView();
     }
 
+    private onBuyBaseShopItem(item: ShopItemData): void {
+        const world = WorldProgressManager.instance || WorldProgressManager.ensureInstance();
+        if (!world.spendMoney(item.price)) {
+            this.setWorldStatus('购买失败：资金不足');
+            return;
+        }
+
+        const inventory = InventoryManager.instance;
+        if (inventory) {
+            if (!inventory.currentLevel) inventory.initLevel(1);
+            this.applyBaseShopItemToInventory(inventory, item);
+        }
+
+        this.syncInventoryWallet();
+        this.setWorldStatus(`已补货：${item.name} +${item.quantity}${item.needsProcessing ? '（待备菜）' : ''}`);
+        this.refreshWorldShopView();
+    }
+
     private syncInventoryWallet(): void {
         const world = WorldProgressManager.instance || WorldProgressManager.ensureInstance();
         const inventory = InventoryManager.instance;
@@ -1350,16 +1375,72 @@ export class ShopController extends Component {
 
         const ingredientPanel = this.worldRoot.getChildByName('IngredientPanel');
         if (ingredientPanel) {
-            WORLD_INGREDIENT_CONFIGS.forEach((config) => {
-                const btn = ingredientPanel.getChildByName(`Ingredient_${config.ingredientId}`);
-                const label = btn?.getComponentInChildren(Label);
-                if (!btn || !label) return;
-                const unlocked = world.progress.unlockedIngredients.includes(config.ingredientId);
-                label.string = unlocked
-                    ? `🥬 ${config.name}（补货 ${config.price}）`
-                    : `🔓 ${config.name}（解锁 ${config.price}）`;
-            });
+            const baseItems = this.getWorldBaseShopItems(world.progress.currentMapId);
+            if (baseItems.length > 0) {
+                baseItems.forEach((item) => {
+                    const btn = ingredientPanel.getChildByName(`BaseItem_${item.id}`);
+                    const label = btn?.getComponentInChildren(Label);
+                    if (!btn || !label) return;
+                    const stock = this.getItemStock(item.ingredientType);
+                    const stockLabel = item.needsProcessing ? `原料 ${stock}` : `库存 ${stock}`;
+                    label.string = `${item.emoji} ${item.name} x${item.quantity} - ${item.price} | ${stockLabel}`;
+                });
+            } else {
+                this.getWorldFlavorConfigs(world.progress.currentMapId).forEach((config) => {
+                    const btn = ingredientPanel.getChildByName(`Ingredient_${config.ingredientId}`);
+                    const label = btn?.getComponentInChildren(Label);
+                    if (!btn || !label) return;
+                    const unlocked = world.progress.unlockedIngredients.includes(config.ingredientId);
+                    const stock = this.getItemStock(config.ingredientType);
+                    label.string = unlocked
+                        ? `🥬 ${config.name}（补货 ${config.price}）| 库存 ${stock}`
+                        : `🔓 ${config.name}（解锁 ${config.price}）| 库存 ${stock}`;
+                });
+            }
         }
+    }
+
+    private getWorldBaseShopItems(mapId: string): ShopItemData[] {
+        if (mapId !== 'street') {
+            return [];
+        }
+        const streetTypes: IngredientType[] = [
+            IngredientType.DOUGH,
+            IngredientType.EGG,
+            IngredientType.SAUSAGE,
+            IngredientType.ONION,
+            IngredientType.CILANTRO
+        ];
+        return SHOP_ITEMS.filter((item) => streetTypes.includes(item.ingredientType));
+    }
+
+    private getWorldFlavorConfigs(mapId: string): IngredientFlavorConfig[] {
+        return WORLD_INGREDIENT_CONFIGS.filter((config) => !config.unlockCondition.mapId || config.unlockCondition.mapId === mapId);
+    }
+
+    private applyBaseShopItemToInventory(inventory: InventoryManager, item: ShopItemData): void {
+        const levelData = inventory.currentLevel;
+        if (!levelData) {
+            return;
+        }
+
+        let ingredient = levelData.inventory.get(item.ingredientType);
+        if (!ingredient) {
+            ingredient = {
+                ingredientType: item.ingredientType,
+                rawCount: 0,
+                processedCount: 0,
+                reservedCount: 0
+            };
+            levelData.inventory.set(item.ingredientType, ingredient);
+        }
+
+        if (item.needsProcessing) {
+            ingredient.rawCount += item.quantity;
+        } else {
+            ingredient.processedCount += item.quantity;
+        }
+        inventory.saveLevelState();
     }
 
     private setWorldStatus(text: string): void {

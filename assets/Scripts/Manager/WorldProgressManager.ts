@@ -476,6 +476,9 @@ export class WorldProgressManager extends Component {
         if (config.unlockCondition.mapId && !this.progress.unlockedMaps.includes(config.unlockCondition.mapId)) {
             return false;
         }
+        if (config.starterFree) {
+            return true;
+        }
         if (typeof config.unlockCondition.minMoney === 'number' && this.progress.totalMoney < config.unlockCondition.minMoney) {
             return false;
         }

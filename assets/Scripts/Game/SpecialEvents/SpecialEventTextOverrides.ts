@@ -34,6 +34,7 @@ export class SpecialEventTextOverrides {
     private overrides: Record<string, OverrideEntry> = {};
     private lastLoadAt = 0;
     private lastAsset: Asset | null = null;
+    private missingWarned = false;
 
     public ensureLoaded() {
         if (this.loaded || this.loading) return;
@@ -63,10 +64,13 @@ export class SpecialEventTextOverrides {
         }
 
         const path = 'SpecialEvents/special_event_overrides';
-        const warnLoadFailure = (err: unknown) => {
-            if (!this.loaded) {
-                console.warn('[SpecialEventTextOverrides] 覆写文件未找到或加载失败，将使用默认模板', err);
+        const warnLoadFailure = () => {
+            if (!this.missingWarned) {
+                console.warn('[SpecialEventTextOverrides] 覆写文件未找到，使用默认模板');
+                this.missingWarned = true;
             }
+            // 将缺失视为可选降级，避免预览态重复刷屏
+            this.loaded = true;
         };
         const applyOverrides = (json?: OverrideFile) => {
             this.overrides = json?.events ?? {};
@@ -85,7 +89,7 @@ export class SpecialEventTextOverrides {
             resources.load(path, TextAsset, (textErr, textAsset) => {
                 this.loading = false;
                 if (textErr || !textAsset) {
-                    warnLoadFailure(textErr || err);
+                    warnLoadFailure();
                     return;
                 }
                 this.lastAsset = textAsset;
@@ -93,7 +97,7 @@ export class SpecialEventTextOverrides {
                     const json = JSON.parse(textAsset.text) as OverrideFile;
                     applyOverrides(json);
                 } catch (parseErr) {
-                    warnLoadFailure(parseErr);
+                    warnLoadFailure();
                 }
             });
         });
