@@ -62,7 +62,7 @@ export class InventoryManager extends Component {
     private static _instance: InventoryManager = null;
 
     // 测试阶段：不限制关卡解锁
-    private readonly DEBUG_UNLOCK_ALL_LEVELS: boolean = true;
+    private readonly DEBUG_UNLOCK_ALL_LEVELS: boolean = false;
     
     public static get instance(): InventoryManager {
         return InventoryManager._instance;

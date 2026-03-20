@@ -122,7 +122,7 @@ export class GameProgressManager extends Component {
     
     private static _instance: GameProgressManager = null;
     private static readonly STORAGE_KEY = 'cooking_game_progress';
-    private static readonly DEBUG_UNLOCK_ALL_LEVELS: boolean = true;
+    private static readonly DEBUG_UNLOCK_ALL_LEVELS: boolean = false;
     
     // 当前进度数据
     private _progress: GameProgress = null;

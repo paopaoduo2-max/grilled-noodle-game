@@ -36,31 +36,50 @@ export class WorldStoryTaskManager {
         return this.resolveTodayTask(manager.progress.currentDayState.sideTaskId);
     }
 
-    public static recordCompletedOrder(payload: OrderRecordPayload): void {
+    public static recordCompletedOrder(payload: OrderRecordPayload): string[] {
         const manager = WorldProgressManager.instance || WorldProgressManager.ensureInstance();
         const dayState = manager.progress.currentDayState;
-        this.tryProgressTask(dayState.mainTaskId, payload);
-        this.tryProgressTask(dayState.sideTaskId, payload);
+        const completedTaskIds: string[] = [];
+        const mainCompleted = this.tryProgressTask(dayState.mainTaskId, payload);
+        const sideCompleted = this.tryProgressTask(dayState.sideTaskId, payload);
+
+        if (mainCompleted) {
+            completedTaskIds.push(mainCompleted);
+        }
+        if (sideCompleted && sideCompleted !== mainCompleted) {
+            completedTaskIds.push(sideCompleted);
+        }
+
+        return completedTaskIds;
     }
 
-    private static tryProgressTask(taskId: string | null, payload: OrderRecordPayload): void {
-        if (!taskId) return;
+    public static getTaskProgress(taskId: string): number {
+        if (!taskId) return 0;
+        const manager = WorldProgressManager.instance || WorldProgressManager.ensureInstance();
+        return manager.getDailyTaskProgress(taskId);
+    }
+
+    private static tryProgressTask(taskId: string | null, payload: OrderRecordPayload): string | null {
+        if (!taskId) return null;
         const manager = WorldProgressManager.instance;
-        if (!manager) return;
+        if (!manager) return null;
 
         const task = getWorldStoryTask(taskId);
-        if (!task) return;
-        if (task.triggerWindow.mapId && task.triggerWindow.mapId !== payload.mapId) return;
+        if (!task) return null;
+        if (task.triggerWindow.mapId && task.triggerWindow.mapId !== payload.mapId) return null;
         if (task.orderRequirements.flavorTags?.length) {
             const flavorTags = payload.flavorTags || [];
             const matched = task.orderRequirements.flavorTags.some((tag) => flavorTags.includes(tag));
-            if (!matched) return;
+            if (!matched) return null;
         }
 
         const progress = manager.increaseDailyTaskProgress(taskId, 1);
         if (progress >= task.orderRequirements.orderCount) {
             manager.completeStoryTask(taskId);
+            return taskId;
         }
+
+        return null;
     }
 
     private static resolveTodayTask(taskId: string | null): StoryTaskConfig | null {

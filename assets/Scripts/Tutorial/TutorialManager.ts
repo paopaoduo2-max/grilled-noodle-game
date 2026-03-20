@@ -36,8 +36,8 @@ export class TutorialManager extends Component {
         GuideManager.instance?.onCookingAction(_action, _data);
     }
 
-    public showNPCDialogue(_key: string) {
-        // 交由 GuideManager 统一显示
+    public showNPCDialogue(key: string) {
+        GuideManager.instance?.showDialogueByKey(key);
     }
 
     public canRoll(): boolean {

@@ -17,6 +17,8 @@ import { SaveManager } from '../Manager/SaveManager';
 import { SceneRouteService } from '../Manager/SceneRouteService';
 import { WorldProgressManager } from '../Manager/WorldProgressManager';
 import { WorldStoryTaskManager } from '../Manager/WorldStoryTaskManager';
+import { FeatureGate } from '../Manager/FeatureGate';
+import { getWorldStoryTask } from '../Data/WorldRuntimeConfig';
 import { IngredientType, GameConfig, RecipeData } from '../Data/GameConfig';  // 🔥 从GameConfig统一导入
 import { DoughState, FlavorType, CustomerMood, IngredientData, CustomerOrder, CustomerData, ReviewHistoryItem, EventMessage } from './Types/CookingTypes';  // 📦 类型定义
 import { FoodItem } from './Types/FoodItem';  // 📦 面饼类
@@ -43,6 +45,248 @@ export type { CustomerData, CustomerOrder } from './Types/CookingTypes';
 // 📦 FoodItem 类已移至 ./Types/FoodItem.ts
 // 重新导出以保持兼容性
 export { FoodItem } from './Types/FoodItem';
+
+class WorldStoryTaskHud {
+    private root: Node | null = null;
+    private trackerLabel: Label | null = null;
+    private popupQueue: Array<{ title: string; body: string; accent: Color }> = [];
+    private popupNode: Node | null = null;
+    private readonly popupDuration = 3.2;
+
+    constructor(private readonly controller: CookingControllerV2) {}
+
+    public setup(): void {
+        WorldStoryTaskManager.bootstrapDailyTasks();
+        this.ensureUi();
+        this.refresh();
+        this.presentDailySamples();
+    }
+
+    public refresh(completedTaskIds: string[] = []): void {
+        this.ensureUi();
+        this.updateTracker();
+        completedTaskIds.forEach((taskId) => this.queueCompletedPopup(taskId));
+        this.showNextPopup();
+    }
+
+    public dispose(): void {
+        if (this.popupNode && this.popupNode.isValid) {
+            this.popupNode.destroy();
+        }
+        if (this.root && this.root.isValid) {
+            this.root.destroy();
+        }
+        this.popupNode = null;
+        this.root = null;
+        this.trackerLabel = null;
+        this.popupQueue.length = 0;
+    }
+
+    private ensureUi(): void {
+        const canvas = find('Canvas') || this.controller.node.scene?.getChildByName('Canvas') || this.controller.node.parent;
+        if (!canvas) return;
+
+        if (!this.root || !this.root.isValid) {
+            this.root = canvas.getChildByName('WorldStoryTaskHUD');
+        }
+        if (!this.root || !this.root.isValid) {
+            const root = new Node('WorldStoryTaskHUD');
+            root.layer = canvas.layer;
+            const transform = root.addComponent(UITransform);
+            transform.setContentSize(360, 120);
+            root.setPosition(470, 240, 0);
+            canvas.addChild(root);
+            root.setSiblingIndex(9996);
+
+            const bg = root.addComponent(Graphics);
+            bg.fillColor = new Color(18, 24, 30, 220);
+            bg.roundRect(-180, -60, 360, 120, 14);
+            bg.fill();
+            bg.strokeColor = new Color(255, 208, 120, 220);
+            bg.lineWidth = 2;
+            bg.roundRect(-180, -60, 360, 120, 14);
+            bg.stroke();
+
+            const titleNode = new Node('Title');
+            titleNode.layer = canvas.layer;
+            titleNode.setPosition(0, 40, 0);
+            const titleLabel = titleNode.addComponent(Label);
+            titleLabel.string = '今日剧情任务';
+            titleLabel.fontSize = 20;
+            titleLabel.isBold = true;
+            titleLabel.color = new Color(255, 230, 180, 255);
+            root.addChild(titleNode);
+
+            const trackerNode = new Node('Tracker');
+            trackerNode.layer = canvas.layer;
+            trackerNode.setPosition(-154, 12, 0);
+            const trackerTransform = trackerNode.addComponent(UITransform);
+            trackerTransform.setAnchorPoint(0, 0.5);
+            trackerTransform.setContentSize(308, 80);
+            const trackerLabel = trackerNode.addComponent(Label);
+            trackerLabel.fontSize = 16;
+            trackerLabel.lineHeight = 22;
+            trackerLabel.overflow = Label.Overflow.RESIZE_HEIGHT;
+            trackerLabel.horizontalAlign = Label.HorizontalAlign.LEFT;
+            trackerLabel.verticalAlign = Label.VerticalAlign.TOP;
+            trackerLabel.color = new Color(240, 240, 240, 255);
+            root.addChild(trackerNode);
+
+            this.root = root;
+            this.trackerLabel = trackerLabel;
+        }
+
+        if (!this.trackerLabel && this.root) {
+            this.trackerLabel = this.root.getChildByName('Tracker')?.getComponent(Label) ?? null;
+        }
+    }
+
+    private updateTracker(): void {
+        if (!this.trackerLabel) return;
+        const mainTask = WorldStoryTaskManager.getTodayMainTask();
+        const sideTask = WorldStoryTaskManager.getTodaySideTask();
+        const lines = [
+            this.buildTaskLine('主线', mainTask),
+            this.buildTaskLine('支线', sideTask)
+        ];
+        this.trackerLabel.string = lines.join('\n');
+    }
+
+    private buildTaskLine(label: string, task: ReturnType<typeof WorldStoryTaskManager.getTodayMainTask>): string {
+        if (!task) {
+            return `${label}：今日暂无新单`;
+        }
+
+        const manager = WorldProgressManager.instance || WorldProgressManager.ensureInstance();
+        const progress = WorldStoryTaskManager.getTaskProgress(task.taskId);
+        const target = task.orderRequirements.orderCount;
+        const completed = manager.isStoryTaskCompleted(task.taskId);
+        const status = completed ? '已完成' : `${progress}/${target}`;
+        const flavor = task.orderRequirements.flavorTags?.length ? ` · ${task.orderRequirements.flavorTags.join('/')}` : '';
+        return `${label}：${task.title || task.taskId}${flavor} (${status})`;
+    }
+
+    private presentDailySamples(): void {
+        const manager = WorldProgressManager.instance || WorldProgressManager.ensureInstance();
+        const day = manager.progress.dayIndex;
+        const sampleConfigs = [
+            { task: WorldStoryTaskManager.getTodayMainTask(), label: '主线委托', accent: new Color(255, 188, 92, 255) },
+            { task: WorldStoryTaskManager.getTodaySideTask(), label: '支线委托', accent: new Color(128, 220, 180, 255) }
+        ];
+
+        sampleConfigs.forEach(({ task, label, accent }) => {
+            if (!task) return;
+            const flag = `story.sample.presented.${day}.${task.taskId}`;
+            if (manager.getStoryFlag(flag)) return;
+            manager.setStoryFlag(flag, true);
+            const rewardParts: string[] = [];
+            if (task.rewards.money) rewardParts.push(`奖励${task.rewards.money}元`);
+            if (task.rewards.unlockDeviceIds?.length) rewardParts.push(`解锁设备 ${task.rewards.unlockDeviceIds.join('、')}`);
+            if (task.rewards.unlockIngredientIds?.length) rewardParts.push(`解锁食材 ${task.rewards.unlockIngredientIds.join('、')}`);
+            const body = [
+                task.briefing || `委托编号：${task.taskId}`,
+                `条件：完成 ${task.orderRequirements.orderCount} 份订单`,
+                task.orderRequirements.flavorTags?.length ? `口味：${task.orderRequirements.flavorTags.join(' / ')}` : '口味：不限',
+                rewardParts.length > 0 ? rewardParts.join('；') : '奖励：推进剧情'
+            ].join('\n');
+            this.popupQueue.push({ title: `${label}已触发`, body, accent });
+        });
+    }
+
+    private queueCompletedPopup(taskId: string): void {
+        const resolvedTask = getWorldStoryTask(taskId);
+        const manager = WorldProgressManager.instance || WorldProgressManager.ensureInstance();
+        const completedTask = resolvedTask || null;
+        if (!completedTask) return;
+        const lineLabel = completedTask.lineType === 'main' ? '主线完成' : '支线完成';
+        const rewardText: string[] = [];
+        if (completedTask.rewards.money) rewardText.push(`+${completedTask.rewards.money}元`);
+        if (completedTask.rewards.unlockDeviceIds?.length) rewardText.push(`设备 ${completedTask.rewards.unlockDeviceIds.join('、')}`);
+        if (completedTask.rewards.unlockIngredientIds?.length) rewardText.push(`食材 ${completedTask.rewards.unlockIngredientIds.join('、')}`);
+        const completionFlag = `story.sample.completed.popup.${manager.progress.dayIndex}.${taskId}`;
+        if (manager.getStoryFlag(completionFlag)) return;
+        manager.setStoryFlag(completionFlag, true);
+        this.popupQueue.push({
+            title: `${lineLabel} · ${completedTask.title || completedTask.taskId}`,
+            body: rewardText.length > 0 ? rewardText.join('\n') : '剧情状态已推进',
+            accent: completedTask.lineType === 'main' ? new Color(255, 214, 120, 255) : new Color(156, 230, 192, 255)
+        });
+    }
+
+    private showNextPopup(): void {
+        if (this.popupNode || this.popupQueue.length === 0) return;
+        const canvas = find('Canvas') || this.controller.node.scene?.getChildByName('Canvas') || this.controller.node.parent;
+        if (!canvas) return;
+
+        const popup = this.createPopupNode(canvas, this.popupQueue.shift()!);
+        this.popupNode = popup;
+        canvas.addChild(popup);
+        popup.setSiblingIndex(9998);
+        popup.setScale(0.92, 0.92, 1);
+        popup.setPosition(0, 180, 0);
+        tween(popup)
+            .to(0.18, { scale: new Vec3(1, 1, 1), position: new Vec3(0, 210, 0) }, { easing: 'backOut' })
+            .start();
+
+        this.controller.scheduleOnce(() => {
+            if (!this.popupNode || !this.popupNode.isValid) {
+                this.popupNode = null;
+                this.showNextPopup();
+                return;
+            }
+            const currentPopup = this.popupNode;
+            this.popupNode = null;
+            tween(currentPopup)
+                .to(0.18, { scale: new Vec3(0.92, 0.92, 1), position: new Vec3(0, 180, 0) })
+                .call(() => currentPopup.destroy())
+                .call(() => this.showNextPopup())
+                .start();
+        }, this.popupDuration);
+    }
+
+    private createPopupNode(canvas: Node, config: { title: string; body: string; accent: Color }): Node {
+        const popup = new Node('WorldStoryTaskPopup');
+        popup.layer = canvas.layer;
+        const transform = popup.addComponent(UITransform);
+        transform.setContentSize(420, 150);
+        const bg = popup.addComponent(Graphics);
+        bg.fillColor = new Color(16, 20, 28, 240);
+        bg.roundRect(-210, -75, 420, 150, 16);
+        bg.fill();
+        bg.strokeColor = config.accent;
+        bg.lineWidth = 3;
+        bg.roundRect(-210, -75, 420, 150, 16);
+        bg.stroke();
+
+        const titleNode = new Node('Title');
+        titleNode.layer = canvas.layer;
+        titleNode.setPosition(0, 40, 0);
+        const titleLabel = titleNode.addComponent(Label);
+        titleLabel.string = config.title;
+        titleLabel.fontSize = 24;
+        titleLabel.isBold = true;
+        titleLabel.color = config.accent;
+        popup.addChild(titleNode);
+
+        const bodyNode = new Node('Body');
+        bodyNode.layer = canvas.layer;
+        bodyNode.setPosition(-180, 0, 0);
+        const bodyTransform = bodyNode.addComponent(UITransform);
+        bodyTransform.setAnchorPoint(0, 0.5);
+        bodyTransform.setContentSize(360, 90);
+        const bodyLabel = bodyNode.addComponent(Label);
+        bodyLabel.string = config.body;
+        bodyLabel.fontSize = 18;
+        bodyLabel.lineHeight = 24;
+        bodyLabel.overflow = Label.Overflow.RESIZE_HEIGHT;
+        bodyLabel.horizontalAlign = Label.HorizontalAlign.LEFT;
+        bodyLabel.verticalAlign = Label.VerticalAlign.TOP;
+        bodyLabel.color = new Color(242, 242, 242, 255);
+        popup.addChild(bodyNode);
+
+        return popup;
+    }
+}
 
 /**
  * 烤冷面控制器 V2
@@ -338,6 +582,7 @@ export class CookingControllerV2 extends Component {
     
     // 教程管理器
     private tutorialManager: TutorialManager = null;
+    private worldStoryTaskHud: WorldStoryTaskHud | null = null;
     
     // UI引用
     @property(Label)
@@ -482,6 +727,7 @@ export class CookingControllerV2 extends Component {
         
         // 旧教程面板已移除，仍保留教程代理以接入新教程系统
         this.findTutorialManager();
+        this.setupWorldStoryTaskHud();
         
         // 🎲 初始化新事件系统V2
         if (!this.singleDishMode) {
@@ -841,6 +1087,15 @@ export class CookingControllerV2 extends Component {
                 this.tutorialManager = proxyNode.addComponent(TutorialManager);
             }
         }
+    }
+
+    private setupWorldStoryTaskHud(): void {
+        if (this.singleDishMode) return;
+        if (!FeatureGate.ENABLE_WORLD_SINGLE_FLOW || !FeatureGate.ENABLE_DAILY_STORY_TASKS) return;
+        if (!this.worldStoryTaskHud) {
+            this.worldStoryTaskHud = new WorldStoryTaskHud(this);
+        }
+        this.worldStoryTaskHud.setup();
     }
     
     /** 触发教程动作 */
@@ -10065,16 +10320,18 @@ export class CookingControllerV2 extends Component {
         console.log(`[CookingControllerV2] 💰 获得金币: ${result.money}, 总金币: ${this.totalMoney}`);
 
         // 世界流程：记录顾客订单与剧情任务进度
+        let completedStoryTaskIds: string[] = [];
         if (result.money > 0) {
             const world = WorldProgressManager.instance || WorldProgressManager.ensureInstance();
             const mapId = world.progress.currentMapId;
             const npcId = (customer.order as any)?.customerId || customer.node?.name || 'guest';
             world.recordOrder(npcId, mapId);
-            WorldStoryTaskManager.recordCompletedOrder({
+            completedStoryTaskIds = WorldStoryTaskManager.recordCompletedOrder({
                 mapId,
                 flavorTags: this.extractFlavorTags(food)
             });
         }
+        this.worldStoryTaskHud?.refresh(completedStoryTaskIds);
         
         // 更新UI
         this.updateMoneyDisplay();
@@ -10638,7 +10895,7 @@ export class CookingControllerV2 extends Component {
         // 创建名字标签
         const nameNode = new Node('Name');
         const nameLabel = nameNode.addComponent(Label);
-        nameLabel.string = '老王';
+        nameLabel.string = '王师傅';
         nameLabel.fontSize = 20;
         nameLabel.color = new Color(255, 255, 255, 255);  // 白字
         nameLabel.horizontalAlign = 1;
@@ -10830,7 +11087,7 @@ export class CookingControllerV2 extends Component {
             
             // 显示所有 UI，正式开始游戏
             this.scheduleOnce(() => {
-                this.showMessage('🎉 恭喜通过老王的考核！');
+                this.showMessage('🎉 恭喜通过王师傅的考核！');
             }, 2);
         } else {
             let missing = [];
@@ -11315,7 +11572,7 @@ export class CookingControllerV2 extends Component {
         // 订单标题
         const titleNode = new Node('OrderTitle');
         const titleLabel = titleNode.addComponent(Label);
-        titleLabel.string = '📋 老王的订单';
+        titleLabel.string = '📋 王师傅的订单';
         titleLabel.fontSize = 16;
         titleLabel.color = new Color(100, 100, 100, 255);  // 灰色标题
         titleLabel.horizontalAlign = 1;  // CENTER
@@ -11432,7 +11689,7 @@ export class CookingControllerV2 extends Component {
                 // 触发教程事件
                 this.triggerTutorialAction('delivered');
                 
-                this.showMessage('✅ 交付成功！老王收到了！');
+                this.showMessage('✅ 交付成功！王师傅收到了！');
                 break;
             }
         }
@@ -11459,6 +11716,8 @@ export class CookingControllerV2 extends Component {
         
         // 🔥 移除 window 鼠标监听
         this.removeNativeMouseListener();
+        this.worldStoryTaskHud?.dispose();
+        this.worldStoryTaskHud = null;
     }
     
     // ==================== 库存系统 ====================
