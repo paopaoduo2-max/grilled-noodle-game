@@ -601,6 +601,19 @@ export class ProcessingControllerV3 extends Component {
         }
     }
 
+    private getIngredientDisplayName(ingredientType: string): string {
+        const ingredientNames: { [key: string]: string } = {
+            'onion': '洋葱',
+            'cilantro': '香菜',
+            'potato': '土豆',
+            'green_onion': '大葱',
+            'pork': '猪肉',
+            'radish': '萝卜',
+            'ginger': '姜'
+        };
+        return ingredientNames[ingredientType] || ingredientType;
+    }
+
     /**
      * ?? 根据食材类型获取碎屑图片
      */
@@ -1727,32 +1740,58 @@ export class ProcessingControllerV3 extends Component {
 
         const inventory = InventoryManager.instance;
         let processedAny = false;
+        const quickPreparedSummary: Array<{ ingredientType: string; rawCount: number }> = [];
 
         this.ingredientCounts.forEach((count, ingredientType) => {
-            if (count.raw <= 0) return;
+            const rawCount = count.raw;
+            if (rawCount <= 0) return;
             processedAny = true;
+            quickPreparedSummary.push({ ingredientType, rawCount });
 
             if (inventory) {
-                inventory.processIngredient(ingredientType as IngredientType, count.raw);
+                inventory.processIngredient(ingredientType as IngredientType, rawCount);
                 const updated = inventory.getIngredientCount(ingredientType as IngredientType);
                 count.raw = updated.raw;
                 count.processed = updated.processed;
             } else {
-                count.processed += count.raw;
+                count.processed += rawCount;
                 count.raw = 0;
             }
         });
 
         this.cleanupTableVegetable();
         this.clearIngredientNodes();
-        this.updateHint();
         this.checkAllComplete();
 
         EventManager.Instance.emit(GuideEvents.PROCESSING_COMPLETE);
 
         if (processedAny) {
-            console.log('[ProcessingControllerV3] ⚡ 一键完成备菜');
+            this.renderQuickPreparedPiles(quickPreparedSummary);
+            const hintLabel = this.getHintLabel();
+            if (hintLabel) {
+                const summaryText = quickPreparedSummary
+                    .map(({ ingredientType, rawCount }) => `${this.getEmojiForIngredient(ingredientType)}${this.getIngredientDisplayName(ingredientType)}x${rawCount}`)
+                    .join('、');
+                hintLabel.string = `⚡ 一键备菜完成：${summaryText}\n右侧已生成切碎食材，点击开始营业`;
+                hintLabel.color = new Color(110, 255, 120, 255);
+            }
+            console.log('[ProcessingControllerV3] ⚡ 一键完成备菜并生成右侧切碎食材展示');
+        } else {
+            this.updateHint();
         }
+    }
+
+    private renderQuickPreparedPiles(summary: Array<{ ingredientType: string; rawCount: number }>) {
+        if (!summary.length) return;
+
+        this.clearChoppedContainer();
+
+        summary.forEach(({ ingredientType, rawCount }) => {
+            const pileCount = Math.max(1, Math.min(6, rawCount));
+            for (let i = 0; i < pileCount; i++) {
+                this.createChoppedPile(ingredientType);
+            }
+        });
     }
 
     private cleanupTableVegetable() {
