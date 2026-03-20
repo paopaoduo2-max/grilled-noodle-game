@@ -38,3 +38,4 @@ __pycache__/
 .trae/
 _generated_icons/
 C*UsersAdministrator.claudeplans*.md
+gcm-diagnose.log
